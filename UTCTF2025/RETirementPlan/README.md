@@ -205,12 +205,3 @@ p.interactive()
   3. Find **system()** and `"/bin/sh"` offsets.  
   4. Construct **ROP chain** to call `system("/bin/sh")`.  
   5. **Exploit buffer overflow** to execute the attack.  
-
----
-
-## Final Thoughts  
-
-This challenge demonstrates:  
-- Finding **libc offsets** in ASLR-enabled binaries.  
-- Using **ROP gadgets** to manipulate program flow.  
-- Exploiting **buffer overflows** to achieve **remote code execution**.
