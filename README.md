@@ -1,10 +1,12 @@
 
-#WriteUp for  RETirement Plan @ UTCTF25
-##Category: Binary Exploitation / Pwn
+# WriteUp for  RETirement Plan @ UTCTF25
+## Category: Binary Exploitation / Pwn
 
 Upon opening the challenge we are presented with a binary and a libc file
     
-checking the binary we get
+
+Checking the binary we get
+
 `    
 Arch:       amd64-64-little
 RELRO:      Partial RELRO
