@@ -36,7 +36,7 @@ Stripped:   No
 
 Let's decompile the binary using **Ghidra**:  
 
-![Binary](decompiled.png)  
+![Binary](UTCTF2025/RETirementPlan/decompiled.png)  
 
 The binary performs the following operations:  
 
