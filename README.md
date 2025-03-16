@@ -7,7 +7,7 @@ Upon opening the challenge we are presented with a binary and a libc file
 
 Checking the binary we get
 
-`    
+    
 Arch:       amd64-64-little
 RELRO:      Partial RELRO
 Stack:      No canary found
@@ -16,11 +16,11 @@ PIE:        No PIE (0x3fe000)
 Stack:      Executable
 RWX:        Has RWX segments
 Stripped:   No
-`
+
 
 We see the file has:    
-- ==No stack canary== : so the buffer overflow is possible
-- ==NX is not enabled== : so injection of code in the stack is possible        
+==No stack canary== : so the buffer overflow is possible
+==NX is not enabled== : so injection of code in the stack is possible        
 
 Let's now analyze the binary file on a tool like ghidra
 ![Binary](decompiled.png)
