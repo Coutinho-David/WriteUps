@@ -1,37 +1,36 @@
 
-WriteUp for  RETirement Plan @ UTCTF25
-Category: Binary Exploitation / Pwn
+#WriteUp for  RETirement Plan @ UTCTF25
+##Category: Binary Exploitation / Pwn
 
-    Upon opening the challenge we are presented with a binary and a libc file
+Upon opening the challenge we are presented with a binary and a libc file
     
-    checking the binary we get
-    `    
-    Arch:       amd64-64-little
-    RELRO:      Partial RELRO
-    Stack:      No canary found
-    NX:         NX unknown - GNU_STACK missing
-    PIE:        No PIE (0x3fe000)
-    Stack:      Executable
-    RWX:        Has RWX segments
-    Stripped:   No `
+checking the binary we get
+`    
+Arch:       amd64-64-little
+RELRO:      Partial RELRO
+Stack:      No canary found
+NX:         NX unknown - GNU_STACK missing
+PIE:        No PIE (0x3fe000)
+Stack:      Executable
+RWX:        Has RWX segments
+Stripped:   No
+`
 
-    We see the file has: 
-    - ==No stack canary== : so the buffer overflow is possible
-    - ==NX is not enabled== : so injection of code in the stack is possible
-    - ==No Pie== : so the binary is n .. .    
-    
+We see the file has:    
+- ==No stack canary== : so the buffer overflow is possible
+- ==NX is not enabled== : so injection of code in the stack is possible        
 
-    Let's now analyze the binary file on a tool like ghidra
-    ![Binary](decompiled.png)
+Let's now analyze the binary file on a tool like ghidra
+![Binary](decompiled.png)
 
-    What the code does is very simple:
+What the code does is very simple:
 
-    ```
+```
     It uses puts to display an output to the user 
     Uses gets to get user input into a 48 byte buffer (exploitable via overflow)
     And for each char od the user input it transforms them in their opposite, meaning a -> z, b -> x, A -> Z ...
     if the character is lowercase does -0x25, if it is uppercase does -0x65
-    ``` 
+``` 
 
 
     From this we know that the code will never provide us a flag, so we need to execute system("/bin/sh"), for this we need to know the system call address and the /bin/sh address. 
@@ -41,31 +40,31 @@ Category: Binary Exploitation / Pwn
     `$1 = {<text variable, no debug info>} 0x453a0 <system>`
     So our system offset is ==0x453a0== 
 
-    And if we do 
-    `strings -t x libc-2.23.so | grep /bin/sh` 
-    we get the /bin/sh offset ==18ce57==
+And if we do 
+`strings -t x libc-2.23.so | grep /bin/sh` 
+we get the /bin/sh offset ==18ce57==
 
     So if we get the address of a call in the program, we can use it to calculate the libc base address and then the system's and /bin/sh's, so let's choose the first call, puts()
 
     we see on the libc that the puts offset is :
-    `$1 = {<text variable, no debug info>} 0x6f6a0 <puts>`
+`$1 = {<text variable, no debug info>} 0x6f6a0 <puts>`
 
     So essentially what we need to do is run the program, get puts address, call main() again so process doesn't finish, calculate the system() and /bin/sh addresses, call system with /bin/sh.
 
     So now we need to get the main() address and gadgets to overwrite the return address
     
     If we use cylic to crash the program and check it using gdb we can see
-    ![main](main.png)
+![main](main.png)
 
-    That the main address is 0x40070d - 247 = ==0x400616==
+That the main address is 0x40070d - 247 = ==0x400616==
 
     Getting the gadgets using ROPGadget 
     
-    ```
+```
     ROPgadget --binary ./shellcode | grep "pop rdi"
     0x0000000000400793 : pop rdi ; ret
     0x00000000004004a9 : ret
-    ```
+```
 
     pop rdi: Pops the top value from the stack into the rdi register.
     ret: Returns to the next address on the stack.
