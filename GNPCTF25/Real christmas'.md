@@ -28,7 +28,7 @@ When we open the challenge we can see a simple web page that allows a user to
  - **Login**
  - **Get Flag** 
 
-![[Screenshot 2025-06-23 at 17.38.43.png]]
+![[https://github.com/Coutinho-David/WriteUps/blob/main/GNPCTF25/Screenshot%202025-06-23%20at%2017.38.43.png]]
 
 ## The src code 
 
