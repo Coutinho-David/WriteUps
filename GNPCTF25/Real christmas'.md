@@ -36,7 +36,7 @@ I wont bother you too much with the source code analysis, and will show you the 
 
 We are given this set of files: 
 
-![[Screenshot 2025-06-23 at 17.40.34.png]]
+![](https://github.com/Coutinho-David/WriteUps/blob/main/GNPCTF25/Screenshot%202025-06-23%20at%2017.40.34.png)
 
 It is on the graphQL, routes and services files that we find the good stuff !
 
