@@ -305,7 +305,7 @@ Shoutout  to `coutinho21` for the help !
 
 Now we just need to create a user with this email `"}){success} makeAdminUser(user:{id:1}){  #"@cdm.com` , making sure id corresponds with this same user's id and login, wait a few seconds for the deactivation task and _voilá_ we get the flag !
 
-![[Screenshot 2025-06-23 at 18.21.32.png]]
+![](https://github.com/Coutinho-David/WriteUps/edit/main/GNPCTF25/Screenshot+2025-06-23+at+18.21.32.png))
 
 
 --- 
