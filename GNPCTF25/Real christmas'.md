@@ -390,7 +390,7 @@ mutation {
  
 And we now have a user that is both active and admin, let's get that flag 
 
-![[Screenshot 2025-06-23 at 18.52.39.png]]
+![](https://github.com/Coutinho-David/WriteUps/blob/main/GNPCTF25/Screenshot%202025-06-23%20at%2018.52.39.png)
 
 
 --- 
