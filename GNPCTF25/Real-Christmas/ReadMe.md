@@ -34,7 +34,7 @@ When we open the challenge we can see a simple web page that allows a user to:
 - **Login**
 - **Get Flag** 
 
-![register-page](https://raw.githubusercontent.com/Coutinho-David/WriteUps/main/GNPCTF25/register.png)
+![register-page](https://raw.githubusercontent.com/Coutinho-David/WriteUps/main/GNPCTF25/Real-Christmas/register.png)
 
 ## The src code 
 
@@ -308,7 +308,7 @@ Now we just need to create a user with this email
 ```
 Making sure id corresponds with this same user's id and login, wait a few seconds for the deactivation task and _voilá_ we get the flag !
 
-![flag1](https://raw.githubusercontent.com/Coutinho-David/WriteUps/main/GNPCTF25/flag1.png)
+![flag1](https://raw.githubusercontent.com/Coutinho-David/WriteUps/main/GNPCTF25/Real-Christmas/flag1.png)
 
 --- 
 
@@ -407,7 +407,7 @@ mutation {
  
 And we now have a user that is both active and admin, let's get that flag 
 
-![flag2](https://raw.githubusercontent.com/Coutinho-David/WriteUps/main/GNPCTF25/flag2.png)
+![flag2](https://raw.githubusercontent.com/Coutinho-David/WriteUps/main/GNPCTF25/Real-Christmas/flag2.png)
 
 
 --- 
