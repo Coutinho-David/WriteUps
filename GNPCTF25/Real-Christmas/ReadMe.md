@@ -34,7 +34,7 @@ When we open the challenge we can see a simple web page that allows a user to:
 - **Login**
 - **Get Flag** 
 
-![register-page](https://raw.githubusercontent.com/Coutinho-David/WriteUps/main/GNPCTF25/register.png)
+![register-page](https://raw.githubusercontent.com/Coutinho-David/WriteUps/main/GNPCTF25/Real-Christmas/register.png)
 
 ## The src code 
 
@@ -76,7 +76,7 @@ So we get 2 crucial pieces of information:
 
 <br>
 
-And this is how a user registers in the app :
+And this is how a user registers in the app:
 
 ```python
 @bp.route("/register", methods=["GET", "POST"])
@@ -195,7 +195,7 @@ def deactivate_user_graphql(email):
         
 ```
 
-_Voilá_ we just found an injection point, the user's email is being used un-escaped on the graphql mutation. And we can also see that thankfully the operation is being done using that **SECRET_TOKEN** we need to call MakeAdminUser
+_Voilá_ we just found an injection point, the user's email is being used un-escaped on the graphql mutation. And we can also see that thankfully the operation is being done using that **SECRET_TOKEN** we need to call MakeAdminUser, the code also shows this task is ran every 10 seconds
 
 --- 
 
@@ -209,9 +209,7 @@ So if we want to get a flag:
 
 <br>
 
-Let's get to building that solution
-
-Firstly the deactivation looks like this : 
+Let's get to building that solution. Firstly the deactivation looks like this: 
 
 ```python
 mutation {
@@ -245,7 +243,7 @@ Now this is where we run into the issue, how can we register a user with this em
 
 The RFC sees an email divided in 2 parts `<local-part>@<domain>`
 
-The Local-part can either be :
+The Local-part can either be:
 
 - Letters [a-Z]
 - Digits [0-9]
@@ -254,13 +252,11 @@ The Local-part can either be :
 
 So how exactly can we get out of the string (`" <INPUT> "`) and use special chars? 
 
-I (kinda) lied to you, the RFC actually allows almost any ASCII character when wrapped in double quotes, so:
-
-- All of these chars `()<>[]:,;@\"!#$%^&*` and space, are allowed when inside double quotes.
+I (kinda) lied to you, the RFC actually allows almost any ASCII character when wrapped in double quotes, so all of these chars, `()<>[]:,;@\"!#$%^&*` and space, are allowed when inside double quotes.
 
 <br> 
 
-So this is enough to build our exploit correct? 
+So this should be enough to build our exploit correct? 
 
 _REMINDER_ : `" }) { success } makeAdminUser( user: { id: 1 } ) { `
 
@@ -272,7 +268,7 @@ So our local-part will be exactly that
 
 `" }) { success } makeAdminUser( user: { id: 1 } ) { "` and our domain `@cdm.com`
 
-BUT this raises an issue, as it creates this errored mutation : 
+BUT this raises an issue, as it creates this errored mutation: 
 
 ```python
 mutation {
@@ -283,9 +279,9 @@ mutation {
 
 ```
 
-To solve this issue we can `#comment` out the junk from our domain, remember the `#` is allowed !
+To solve this issue we can use a `#` to comment out the junk from our domain, remember the `#` is allowed!
 
-So we get : `"}){success} makeAdminUser(user:{id:1}){  #"@cdm.com`
+So we get this payload: `"}){success} makeAdminUser(user:{id:1}){  #"@cdm.com`
 
 Which gives us 
 
@@ -308,7 +304,7 @@ Now we just need to create a user with this email
 ```
 Making sure id corresponds with this same user's id and login, wait a few seconds for the deactivation task and _voilá_ we get the flag !
 
-![flag1](https://raw.githubusercontent.com/Coutinho-David/WriteUps/main/GNPCTF25/flag1.png)
+![flag1](https://raw.githubusercontent.com/Coutinho-David/WriteUps/main/GNPCTF25/Real-Christmas/flag1.png)
 
 --- 
 
@@ -326,13 +322,13 @@ Giving us:
 
 ```python
 mutation {
-  deactivateUser(user: { email: "" }) {success} makeAdminUser(user {email:"someone@somewhere.com"}) { #"@cdm.com {
+  deactivateUser(user: { email: "" }) {success} makeAdminUser(user {email:"someone@somewhere.com"}) { #"@cdm.com 
     success
   }
 }
 ```
 
-Why is this a huge issue ? We now need to use double quotes inside of double quotes, which the RFC does not enjoy much, `" "" "`
+Why is this a huge issue? We now need to use double quotes inside of double quotes, which the RFC does not enjoy much, `" "" "`
 
 ### So how can we pass validation and do an injection? 
 
@@ -355,7 +351,7 @@ A **domain-literal**:
 - Must start with `[`and end with `]`
 - **Can** include any printable character except `[ , ] or \`
 
-So what does this mean? This means we have a chance to use 2 double quotes, since inside the domain literal we can use it as much as we like for example, this is valid: 
+So what does this mean? This means we have a chance to use 2 double quotes, since inside the domain literal we can use it as much as we want, for example, this is valid: 
 
 - `user@[" anything*!? " can be ){ " In _ here ! "]`
 
@@ -374,7 +370,7 @@ local@[ "}){success} makeAdminUser(user: {email:"someone@somewhere.com"} ){  #" 
 What the RFC parser sees ? 
 
 ``` python
-	local-part : a
+	local-part : local
 	@
 	domain-literal : [...]
 ```
@@ -407,7 +403,7 @@ mutation {
  
 And we now have a user that is both active and admin, let's get that flag 
 
-![flag2](https://raw.githubusercontent.com/Coutinho-David/WriteUps/main/GNPCTF25/flag2.png)
+![flag2](https://raw.githubusercontent.com/Coutinho-David/WriteUps/main/GNPCTF25/Real-Christmas/flag2.png)
 
 
 --- 
